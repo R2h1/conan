@@ -43,3 +43,6 @@ coverage/
 
 # Vite
 .vite/
+
+deploy-key
+deploy-key.pub
