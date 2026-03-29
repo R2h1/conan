@@ -1,0 +1,94 @@
+name: Deploy Conan Platform
+
+on:
+  push:
+    branches:
+      - main # 或你的默认分支，比如 master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies (root)
+        run: pnpm install
+
+      - name: Build frontend
+        run: pnpm --filter web build
+
+      - name: Build backend
+        run: pnpm --filter server build
+
+      - name: Prepare deployment package
+        run: |
+          mkdir -p deploy_package/frontend deploy_package/backend
+          cp -r packages/web/dist/* deploy_package/frontend/
+          cp -r packages/server/dist deploy_package/backend/
+          cp packages/server/package.json deploy_package/backend/
+          cp packages/server/prisma/schema.prisma deploy_package/backend/prisma/ 2>/dev/null || true
+          cp packages/server/pnpm-lock.yaml deploy_package/backend/ 2>/dev/null || true
+
+      - name: Deploy to server via rsync
+        uses: burnett01/rsync-deployments@6.0
+        with:
+          switches: -avzr --delete
+          path: deploy_package/frontend/
+          remote_path: ${{ secrets.DEPLOY_PATH_FRONTEND }}
+          remote_host: ${{ secrets.DEPLOY_HOST }}
+          remote_user: ${{ secrets.DEPLOY_USER }}
+          remote_key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Deploy backend files
+        uses: burnett01/rsync-deployments@6.0
+        with:
+          switches: -avzr --delete
+          path: deploy_package/backend/
+          remote_path: ${{ secrets.DEPLOY_PATH_BACKEND }}
+          remote_host: ${{ secrets.DEPLOY_HOST }}
+          remote_user: ${{ secrets.DEPLOY_USER }}
+          remote_key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: Setup and restart backend on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH_BACKEND }}
+            # 安装生产依赖
+            pnpm install --prod --frozen-lockfile --ignore-scripts || npm install --production
+            # 生成 Prisma 客户端
+            npx prisma generate
+            # 同步数据库结构（不会清空数据）
+            npx prisma db push --accept-data-loss
+            # 重启 PM2 进程
+            pm2 restart conan-server || pm2 start dist/index.js --name conan-server
+            pm2 save
