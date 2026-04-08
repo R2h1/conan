@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir /b d:\\\\conan\\\\conan\\\\packages)",
+      "Bash(dir \"d:\\\\conan\\\\conan\")"
+    ]
+  }
+}
