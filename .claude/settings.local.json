@@ -17,9 +17,18 @@
       "mcp__chrome-devtools__list_network_requests",
       "mcp__chrome-devtools__get_network_request",
       "mcp__chrome-devtools__list_console_messages",
-      "Bash(pnpm dev:*)",
       "mcp__chrome-devtools__select_page",
-      "mcp__chrome-devtools__take_screenshot"
+      "mcp__chrome-devtools__take_screenshot",
+      "Skill(planning-with-files)",
+      "Skill(planning-with-files:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(rm -rf src/components/ui/toast)",
+      "Bash(npx shadcn-vue:*)",
+      "Bash(tasklist)",
+      "Bash(findstr node:*)",
+      "Bash(powershell -Command *)",
+      "Bash(Stop-Process *)",
+      "mcp__chrome-devtools__fill"
     ]
   }
 }

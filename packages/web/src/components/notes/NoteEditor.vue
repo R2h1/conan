@@ -3,6 +3,7 @@ import { ref, watch, computed } from 'vue';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import { createNote, updateNote, deleteNote, type Note } from '@/api/notes';
+import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,6 +29,8 @@ const emit = defineEmits<{
   (e: 'saved'): void;
   (e: 'deleted'): void;
 }>();
+
+const { toast } = useToast();
 
 const title = ref('');
 const content = ref('');
@@ -70,11 +73,24 @@ const saveNote = async () => {
     };
     if (props.note?.id) {
       await updateNote(props.note.id, noteData);
+      toast({
+        title: '笔记已更新',
+        description: '更改已成功保存',
+      });
     } else {
       await createNote(noteData);
+      toast({
+        title: '笔记已创建',
+        description: '新笔记创建成功',
+      });
     }
     emit('saved');
   } catch (error) {
+    toast({
+      title: '保存失败',
+      description: '请稍后重试',
+      variant: 'destructive',
+    });
     console.error('Save failed:', error);
   } finally {
     isSaving.value = false;
@@ -87,8 +103,17 @@ const deleteCurrentNote = async () => {
     isSaving.value = true;
     try {
       await deleteNote(props.note.id);
+      toast({
+        title: '笔记已删除',
+        description: '笔记已成功删除',
+      });
       emit('deleted');
     } catch (error) {
+      toast({
+        title: '删除失败',
+        description: '请稍后重试',
+        variant: 'destructive',
+      });
       console.error('Delete failed:', error);
     } finally {
       isSaving.value = false;

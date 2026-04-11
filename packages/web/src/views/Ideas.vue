@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { Plus } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import { useToast } from '@/components/ui/toast';
 import IdeaList from '@/components/ideas/IdeaList.vue';
 import IdeaEditor from '@/components/ideas/IdeaEditor.vue';
 
@@ -57,6 +58,7 @@ const ideas = ref<Idea[]>([
 const view = ref<'grid' | 'list'>('grid');
 const showEditor = ref(false);
 const currentIdea = ref<Idea | null>(null);
+const { toast } = useToast();
 
 const handleCreate = () => {
   currentIdea.value = null;
@@ -78,6 +80,10 @@ const handleSave = (data: Omit<Idea, 'id' | 'createdAt' | 'updatedAt'>) => {
         ...data,
         updatedAt: new Date().toISOString(),
       };
+      toast({
+        title: '灵感已更新',
+        description: '更改已成功保存',
+      });
     }
   } else {
     // 新建模式
@@ -88,6 +94,10 @@ const handleSave = (data: Omit<Idea, 'id' | 'createdAt' | 'updatedAt'>) => {
       updatedAt: new Date().toISOString(),
     };
     ideas.value.unshift(newIdea);
+    toast({
+      title: '灵感已创建',
+      description: '新灵感创建成功',
+    });
   }
   showEditor.value = false;
   currentIdea.value = null;
@@ -96,6 +106,10 @@ const handleSave = (data: Omit<Idea, 'id' | 'createdAt' | 'updatedAt'>) => {
 const handleDelete = (idea: Idea) => {
   if (confirm(`确定删除"${idea.title}"吗？`)) {
     ideas.value = ideas.value.filter(i => i.id !== idea.id);
+    toast({
+      title: '灵感已删除',
+      description: `${idea.title} 已成功删除`,
+    });
     showEditor.value = false;
     currentIdea.value = null;
   }

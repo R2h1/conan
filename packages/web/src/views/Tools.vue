@@ -161,6 +161,7 @@ import {
   Clock,
   FileType,
 } from 'lucide-vue-next';
+import { useToast } from '@/components/ui/toast';
 import {
   Card,
   CardHeader,
@@ -172,6 +173,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+
+const { toast } = useToast();
 
 const tabs = [
   { id: 'json', label: 'JSON 工具', icon: Code },
@@ -191,7 +194,16 @@ const formatJson = () => {
     const obj = JSON.parse(jsonInput.value);
     jsonOutput.value = JSON.stringify(obj, null, 2);
     jsonError.value = '';
+    toast({
+      title: 'JSON 格式化成功',
+      description: 'JSON 已格式化',
+    });
   } catch (e: any) {
+    toast({
+      title: 'JSON 格式错误',
+      description: e.message,
+      variant: 'destructive',
+    });
     jsonError.value = '无效 JSON: ' + e.message;
     jsonOutput.value = '';
   }
@@ -202,7 +214,16 @@ const compressJson = () => {
     const obj = JSON.parse(jsonInput.value);
     jsonOutput.value = JSON.stringify(obj);
     jsonError.value = '';
+    toast({
+      title: 'JSON 压缩成功',
+      description: 'JSON 已压缩',
+    });
   } catch (e: any) {
+    toast({
+      title: 'JSON 格式错误',
+      description: e.message,
+      variant: 'destructive',
+    });
     jsonError.value = '无效 JSON: ' + e.message;
     jsonOutput.value = '';
   }
@@ -221,7 +242,14 @@ const dateInput = ref('');
 const timestampOutput = ref<number | null>(null);
 
 const timestampToDate = () => {
-  if (!timestampInput.value) return;
+  if (!timestampInput.value) {
+    toast({
+      title: '请输入时间戳',
+      description: '输入框为空',
+      variant: 'destructive',
+    });
+    return;
+  }
 
   let ts = Number(timestampInput.value);
   // 如果时间戳小于 10 位，认为是秒，转换为毫秒
@@ -239,16 +267,36 @@ const timestampToDate = () => {
       minute: '2-digit',
       second: '2-digit',
     });
+    toast({
+      title: '转换成功',
+      description: `时间戳已转换为日期时间`,
+    });
   } catch (e: any) {
+    toast({
+      title: '转换失败',
+      description: '无效时间戳',
+      variant: 'destructive',
+    });
     dateOutput.value = '无效时间戳';
   }
 };
 
 const dateToTimestamp = () => {
-  if (!dateInput.value) return;
+  if (!dateInput.value) {
+    toast({
+      title: '请选择日期',
+      description: '日期输入为空',
+      variant: 'destructive',
+    });
+    return;
+  }
 
   const date = new Date(dateInput.value);
   timestampOutput.value = Math.floor(date.getTime() / 1000);
+  toast({
+    title: '转换成功',
+    description: `日期时间已转换为时间戳`,
+  });
 };
 
 const setCurrentTimestamp = () => {
@@ -274,20 +322,54 @@ const base64Output = ref('');
 const base64Error = ref('');
 
 const base64Encode = () => {
+  if (!base64Input.value) {
+    toast({
+      title: '请输入文本',
+      description: '输入框为空',
+      variant: 'destructive',
+    });
+    return;
+  }
   try {
     base64Output.value = btoa(unescape(encodeURIComponent(base64Input.value)));
     base64Error.value = '';
+    toast({
+      title: '编码成功',
+      description: '文本已编码为 Base64',
+    });
   } catch (e: any) {
+    toast({
+      title: '编码失败',
+      description: e.message,
+      variant: 'destructive',
+    });
     base64Error.value = '编码失败：' + e.message;
     base64Output.value = '';
   }
 };
 
 const base64Decode = () => {
+  if (!base64Input.value) {
+    toast({
+      title: '请输入 Base64',
+      description: '输入框为空',
+      variant: 'destructive',
+    });
+    return;
+  }
   try {
     base64Output.value = decodeURIComponent(escape(atob(base64Input.value)));
     base64Error.value = '';
+    toast({
+      title: '解码成功',
+      description: 'Base64 已解码为文本',
+    });
   } catch (e: any) {
+    toast({
+      title: '解码失败',
+      description: e.message,
+      variant: 'destructive',
+    });
     base64Error.value = '解码失败：' + e.message;
     base64Output.value = '';
   }
@@ -301,5 +383,9 @@ const clearBase64 = () => {
 
 const copyBase64Output = () => {
   navigator.clipboard.writeText(base64Output.value);
+  toast({
+    title: '已复制',
+    description: '输出已复制到剪贴板',
+  });
 };
 </script>

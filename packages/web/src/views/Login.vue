@@ -48,6 +48,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
+import { useToast } from '@/components/ui/toast';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -60,6 +61,7 @@ const loading = ref(false);
 
 const router = useRouter();
 const authStore = useAuthStore();
+const { toast } = useToast();
 
 const handleSubmit = async () => {
   loading.value = true;
@@ -70,9 +72,19 @@ const handleSubmit = async () => {
       email: email.value,
       password: password.value,
     });
+    toast({
+      title: '登录成功',
+      description: '欢迎回来！',
+    });
     router.push('/app');
   } catch (e: any) {
-    error.value = authStore.error || '登录失败';
+    const errorMsg = e.response?.data?.error || e.message || '登录失败';
+    toast({
+      title: '登录失败',
+      description: errorMsg,
+      variant: 'destructive',
+    });
+    error.value = errorMsg;
   } finally {
     loading.value = false;
   }

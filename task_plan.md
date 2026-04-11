@@ -103,3 +103,70 @@
 - **样式**: Tailwind CSS + CSS 变量主题系统
 - **图标**: lucide-vue-next
 - **状态管理**: Pinia
+
+---
+
+## 任务 3：Toast 提示系统（已完成）
+
+### 目标
+为 Conan 平台添加统一的 Toast 提示系统，提升用户体验。
+
+### 需求
+- 支持成功、错误、警告、信息四种类型
+- 自动消失（可配置时间）
+- 支持手动关闭
+- 多个 Toast 堆叠显示
+- 响应式支持（移动端适配）
+- 与现有主题系统（明暗模式）集成
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 1. 安装 shadcn-vue toast | ✅ 完成 | 使用 `npx shadcn-vue add toast` 安装 |
+| 2. 添加 Toaster 到根组件 | ✅ 完成 | App.vue 添加 Toaster 组件 |
+| 3. 集成到登录/注册页面 | ✅ 完成 | Login.vue、Register.vue 添加成功/失败提示 |
+| 4. 集成到 Notes 页面 | ✅ 完成 | NoteEditor.vue 添加保存/删除提示 |
+| 5. 集成到 Ideas 页面 | ✅ 完成 | Ideas.vue 添加创建/编辑/删除提示 |
+| 6. 集成到 Dashboard 页面 | ✅ 完成 | Dashboard.vue 快速记录提示 |
+| 7. 集成到 Tools 页面 | ✅ 完成 | Tools.vue JSON/Base64/时间戳操作提示 |
+
+### 技术方案
+
+采用 shadcn-vue 官方 Toast 组件，通过 CLI 安装：
+
+```bash
+npx shadcn-vue add toast
+```
+
+**已安装文件**:
+```
+packages/web/src/components/ui/toast/
+  - Toast.vue
+  - ToastAction.vue
+  - ToastClose.vue
+  - ToastDescription.vue
+  - ToastProvider.vue
+  - ToastTitle.vue
+  - ToastViewport.vue
+  - Toaster.vue
+  - index.ts
+  - use-toast.ts
+```
+
+### 用户决策
+| 问题 | 选择 |
+|------|------|
+| Toast 实现方式 | shadcn-vue 官方组件（而非自研） |
+
+### 完成总结
+
+Toast 提示系统已全部集成完成，覆盖以下场景：
+- ✅ 登录/注册成功/失败
+- ✅ 笔记保存/删除
+- ✅ 灵感创建/编辑/删除
+- ✅ 快速记录
+- ✅ JSON 格式化/压缩
+- ✅ 时间戳转换
+- ✅ Base64 编解码
+- ✅ 复制输出

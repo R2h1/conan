@@ -213,3 +213,117 @@ cd packages/web && pnpm dev      # 仅前端
 - **3 个新工具** 添加到工具集
 
 所有功能均已编译通过，可以启动开发服务器进行功能测试。
+
+---
+
+## 2026-04-11 会话 6 - Toast 提示系统集成
+
+### 阶段 0：安装 shadcn-vue toast ✅
+
+**命令**:
+```bash
+npx shadcn-vue add toast
+```
+
+**安装文件**:
+- `packages/web/src/components/ui/toast/Toast.vue`
+- `packages/web/src/components/ui/toast/ToastAction.vue`
+- `packages/web/src/components/ui/toast/ToastClose.vue`
+- `packages/web/src/components/ui/toast/ToastDescription.vue`
+- `packages/web/src/components/ui/toast/ToastProvider.vue`
+- `packages/web/src/components/ui/toast/ToastTitle.vue`
+- `packages/web/src/components/ui/toast/ToastViewport.vue`
+- `packages/web/src/components/ui/toast/Toaster.vue`
+- `packages/web/src/components/ui/toast/index.ts`
+- `packages/web/src/components/ui/toast/use-toast.ts`
+
+### 阶段 1：添加 Toaster 到根组件 ✅
+
+**修改文件**: `packages/web/src/App.vue`
+
+添加 `<Toaster />` 组件到根组件，使 Toast 可以在全局使用。
+
+### 阶段 2：登录/注册页面集成 ✅
+
+**修改文件**: 
+- `packages/web/src/views/Login.vue`
+- `packages/web/src/views/Register.vue`
+
+**功能**:
+- 登录成功 → Toast 提示"登录成功，欢迎回来"
+- 登录失败 → 红色 destructive Toast 提示"登录失败，请检查邮箱和密码"
+- 注册成功 → Toast 提示"注册成功，欢迎加入 Conan"
+- 注册失败 → 红色 destructive Toast 提示"注册失败，请稍后重试"
+
+### 阶段 3：Notes 页面集成 ✅
+
+**修改文件**: `packages/web/src/components/notes/NoteEditor.vue`
+
+**功能**:
+- 笔记保存成功 → Toast 提示"笔记已更新/创建"
+- 笔记删除成功 → Toast 提示"笔记已删除"
+- 操作失败 → 红色 destructive Toast 提示"保存/删除失败"
+
+### 阶段 4：Ideas 页面集成 ✅
+
+**修改文件**: `packages/web/src/views/Ideas.vue`
+
+**功能**:
+- 灵感创建成功 → Toast 提示"灵感已创建"
+- 灵感编辑成功 → Toast 提示"灵感已更新"
+- 灵感删除成功 → Toast 提示"灵感已删除"
+
+### 阶段 5：Dashboard 页面集成 ✅
+
+**修改文件**: `packages/web/src/views/Dashboard.vue`
+
+**功能**:
+- 快速记录 → Toast 提示"快速记录已保存"
+
+### 阶段 6：Tools 页面集成 ✅
+
+**修改文件**: `packages/web/src/views/Tools.vue`
+
+**功能**:
+- JSON 格式化成功 → Toast 提示"JSON 格式化成功"
+- JSON 格式错误 → 红色 destructive Toast 提示错误信息
+- JSON 压缩成功 → Toast 提示"JSON 压缩成功"
+- 时间戳转换成功 → Toast 提示"转换成功"
+- 日期转时间戳成功 → Toast 提示"转换成功"
+- Base64 编码成功 → Toast 提示"编码成功"
+- Base64 解码成功 → Toast 提示"解码成功"
+- 复制输出 → Toast 提示"已复制"
+- 输入为空 → 红色 destructive Toast 提示"请输入..."
+
+---
+
+## Toast 任务完成总结
+
+Toast 提示系统已全部集成完成，共修改 **7 个文件**：
+
+1. **App.vue** - 添加 Toaster 根组件
+2. **Login.vue** - 登录成功/失败提示
+3. **Register.vue** - 注册成功/失败提示
+4. **NoteEditor.vue** - 笔记保存/删除提示
+5. **Ideas.vue** - 灵感创建/编辑/删除提示
+6. **Dashboard.vue** - 快速记录提示
+7. **Tools.vue** - JSON/时间戳/Base64 操作提示
+
+所有用户交互操作现在都有及时的视觉反馈。
+
+---
+
+## Toast 功能 MCP 测试结果 ✅
+
+### 测试场景
+
+| 测试项 | 操作 | 预期 Toast | 结果 |
+|--------|------|------------|------|
+| 登录失败 | 输入错误密码 | "登录失败" + 错误信息 | ✅ 通过 |
+| 登录成功 | 输入正确账户 | "登录成功，欢迎回来！" | ✅ 通过 |
+| 笔记创建 | 新建并保存笔记 | "笔记已创建，新笔记创建成功" | ✅ 通过 |
+| JSON 格式化错误 | 输入无效 JSON | "JSON 格式错误" + 错误详情 | ✅ 通过 |
+| JSON 格式化成功 | 输入有效 JSON | "JSON 格式化成功，JSON 已格式化" | ✅ 通过 |
+
+### 测试结论
+Toast 提示系统功能正常，所有用户交互都有及时的视觉反馈。

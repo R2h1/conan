@@ -76,6 +76,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useToast } from '@/components/ui/toast';
 import {
   BookOpen,
   Lightbulb,
@@ -93,6 +94,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
 const router = useRouter();
+const { toast } = useToast();
 
 // 模拟统计数据（实际应从 API 获取）
 const stats = ref({
@@ -167,6 +169,10 @@ const handleRecentClick = (item: typeof recentItems.value[0]) => {
 const handleQuickSave = () => {
   // TODO: 实现快速保存功能
   console.log('Quick save:', quickNote.value, quickTags.value);
+  toast({
+    title: '快速记录已保存',
+    description: '内容已保存到笔记',
+  });
   quickNote.value = '';
   quickTags.value = '';
 };
