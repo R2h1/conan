@@ -595,3 +595,48 @@ model Idea {
 - ✅ 数据统计 API 正常
 
 ---
+
+## 2026-04-11 会话 11 - 工具集扩展
+
+### 新增工具
+
+| 工具 | 功能 | 状态 |
+|------|------|------|
+| URL 编解码 | encodeURIComponent/decodeURIComponent | ✅ 完成 |
+| HTML 实体转义 | 转义/还原 HTML 特殊字符 | ✅ 完成 |
+| MD5/SHA 哈希 | MD5, SHA-1, SHA-256, SHA-512 | ✅ 完成 |
+| UUID 生成 | 单个/批量生成 UUID v4 | ✅ 完成 |
+| 颜色转换器 | HEX ↔ RGB ↔ HSL 互转 | ✅ 完成 |
+
+### 修改文件
+
+- `packages/web/src/views/Tools.vue` - 添加 5 个新工具组件和逻辑
+- `packages/web/package.json` - 添加 crypto-js 依赖
+- `task_plan.md` - 更新任务 7 状态为已完成
+
+### 依赖安装
+
+- ✅ crypto-js@4.2.0
+- ✅ @types/crypto-js@4.2.2
+
+### 构建验证
+
+- ✅ TypeScript 编译成功
+- ✅ Vite 构建成功
+- ✅ 无错误，无警告（仅 INEFFECTIVE_DYNAMIC_IMPORT 提示）
+
+### 完成总结
+
+工具集扩展已完成，Tools 页面现在有 8 个工具：
+1. JSON 格式化/压缩/校验
+2. 时间戳转换
+3. Base64 编解码
+4. URL 编解码（新增）
+5. HTML 实体转义（新增）
+6. 哈希计算（新增）
+7. UUID 生成（新增）
+8. 颜色转换（新增）
+
+所有工具都支持 Toast 提示和一键复制输出功能。
+
+---
