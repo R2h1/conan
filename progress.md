@@ -640,3 +640,92 @@ model Idea {
 所有工具都支持 Toast 提示和一键复制输出功能。
 
 ---
+
+## 2026-04-12 会话 12 - 知识库增强（笔记关联功能）
+
+### 阶段 1：笔记关联 API 实现 ✅
+
+**修改文件**: `packages/server/src/index.ts`
+
+**新增 API 端点**:
+- `GET /api/notes/:id/related` - 获取相关笔记
+  - 基于标签匹配算法
+  - 计算 matchScore（匹配标签数量）
+  - 按匹配度排序返回前 5 条
+
+**算法逻辑**:
+1. 获取当前笔记的标签列表
+2. 如果没有标签，返回最近的笔记
+3. 查找有相同标签的其他笔记
+4. 计算匹配标签数量作为 matchScore
+5. 按 matchScore 降序排序
+
+### 阶段 2：前端 API 客户端 ✅
+
+**修改文件**: `packages/web/src/api/notes.ts`
+
+**新增**:
+- `RelatedNote` 接口（扩展 Note，添加 matchScore）
+- `getRelatedNotes(id: number)` 函数
+
+### 阶段 3：NoteEditor 组件集成 ✅
+
+**修改文件**: `packages/web/src/components/notes/NoteEditor.vue`
+
+**新增功能**:
+- 导入 `getRelatedNotes` 和 `RelatedNote` 类型
+- 添加 `relatedNotes` 和 `showRelated` 响应式状态
+- 添加 `loadRelatedNotes()` 异步函数
+- 在 `watch` 中调用加载函数
+- 添加相关笔记 UI 区域
+  - 显示相关笔记标题和匹配度 Badge
+  - 点击相关笔记按钮触发 `select` 事件
+
+### 阶段 4：Notes 页面事件处理 ✅
+
+**修改文件**: `packages/web/src/views/Notes.vue`
+
+**新增功能**:
+- 添加 `handleSelectRelated` 函数
+- 处理 NoteEditor 的 `select` 事件
+- 切换到选定的相关笔记
+
+### 提交信息
+```
+feat: 添加笔记关联功能
+
+- 后端：实现 /api/notes/:id/related 端点，基于标签匹配推荐相关笔记
+- 前端：添加 getRelatedNotes API 客户端
+- 前端：NoteEditor 组件显示相关笔记列表和匹配度
+- 前端：Notes.vue 处理相关笔记选择导航
+
+实现 Task 8 Phase 4: 笔记关联 UI
+```
+
+### 完成总结
+
+知识库增强功能已完成，包括：
+
+- ✅ **全文搜索**: 后端 API 已支持搜索笔记标题和内容，前端 NoteList 组件已集成搜索功能
+- ✅ **笔记关联**: 后端 `/api/notes/:id/related` 端点基于标签匹配推荐相关笔记，前端 NoteEditor 显示相关笔记列表和匹配度
+
+**推迟的功能**:
+- ⏳ 标签云（可视化展示所有标签及使用频率）
+- ⏳ 快速搜索面板（Cmd/Ctrl+K 全局搜索面板）
+- ⏳ 笔记收藏（标记重要笔记）
+- ⏳ 笔记历史版本（查看/恢复到历史版本）
+
+### 关键文件路径
+
+**修改的文件**:
+- `packages/server/src/index.ts` - 添加 `/api/notes/:id/related` 端点
+- `packages/web/src/api/notes.ts` - 添加 `getRelatedNotes` API 客户端
+- `packages/web/src/components/notes/NoteEditor.vue` - 显示相关笔记列表
+- `packages/web/src/views/Notes.vue` - 处理相关笔记选择事件
+
+**提交哈希**: `2d37cf2`
+
+### 状态
+- ✅ 代码已提交到本地仓库
+- ⏳ 等待网络恢复后推送到远程仓库
+- ⏳ MCP 验证生产环境功能（改天进行）
