@@ -26,6 +26,10 @@ const handleDeleted = () => {
   showEditor.value = false;
   currentNote.value = null;
 };
+
+const handleSelectRelated = (note: Note) => {
+  currentNote.value = note;
+};
 </script>
 
 <template>
@@ -41,6 +45,7 @@ const handleDeleted = () => {
         :note="currentNote"
         @saved="handleSaved"
         @deleted="handleDeleted"
+        @select="handleSelectRelated"
       />
       <div
         v-else

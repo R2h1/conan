@@ -51,3 +51,13 @@ export const deleteNote = async (id: number) => {
   const response = await api.delete(`/api/notes/${id}`);
   return response.data;
 };
+
+// 获取相关笔记
+export interface RelatedNote extends Note {
+  matchScore?: number;
+}
+
+export const getRelatedNotes = async (id: number): Promise<RelatedNote[]> => {
+  const response = await api.get<RelatedNote[]>(`/api/notes/${id}/related`);
+  return response.data;
+};

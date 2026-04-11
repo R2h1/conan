@@ -119,6 +119,66 @@ fastify.get('/api/notes/:id', async (request, reply) => {
   return { ...note, tags: note.tags ? note.tags.split(',') : [] };
 });
 
+// 获取相关笔记（基于标签匹配）- 需要认证
+fastify.get('/api/notes/:id/related', async (request, reply) => {
+  await requireAuth(request, reply);
+
+  const user: any = request.user;
+  const { id } = request.params as { id: string };
+
+  // 获取当前笔记
+  const currentNote = await prisma.note.findFirst({
+    where: { id: Number(id), userId: user.userId },
+  });
+
+  if (!currentNote) return reply.status(404).send({ error: '笔记不存在' });
+
+  const currentTags = currentNote.tags ? currentNote.tags.split(',') : [];
+
+  if (currentTags.length === 0) {
+    // 如果没有标签，返回最近的笔记
+    const notes = await prisma.note.findMany({
+      where: {
+        id: { not: Number(id) },
+        userId: user.userId,
+      },
+      orderBy: { updatedAt: 'desc' },
+      take: 5,
+    });
+    return notes.map((n: any) => ({
+      ...n,
+      tags: n.tags ? n.tags.split(',') : [],
+    }));
+  }
+
+  // 查找有相同标签的笔记
+  const notes = await prisma.note.findMany({
+    where: {
+      id: { not: Number(id) },
+      userId: user.userId,
+      tags: {
+        contains: currentTags.join(','),
+      },
+    },
+    orderBy: { updatedAt: 'desc' },
+    take: 5,
+  });
+
+  // 计算匹配度（匹配标签数量）
+  const relatedNotes = notes.map((n: any) => {
+    const noteTags = n.tags ? n.tags.split(',') : [];
+    const matchCount = currentTags.filter((t) => noteTags.includes(t)).length;
+    return {
+      ...n,
+      tags: n.tags ? n.tags.split(',') : [],
+      matchScore: matchCount,
+    };
+  });
+
+  // 按匹配度排序
+  return relatedNotes.sort((a, b) => b.matchScore - a.matchScore);
+});
+
 // 创建笔记 - 需要认证
 fastify.post('/api/notes', async (request, reply) => {
   await requireAuth(request, reply);

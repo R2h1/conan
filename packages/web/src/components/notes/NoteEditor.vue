@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue';
+import { ref, watch, computed, onMounted } from 'vue';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
-import { createNote, updateNote, deleteNote, type Note } from '@/api/notes';
+import { createNote, updateNote, deleteNote, getRelatedNotes, type Note, type RelatedNote } from '@/api/notes';
 import { useToast } from '@/components/ui/toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { X, Save, Trash2 } from 'lucide-vue-next';
+import { X, Save, Trash2, Link } from 'lucide-vue-next';
 import 'highlight.js/styles/github-dark.css';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -28,6 +28,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'saved'): void;
   (e: 'deleted'): void;
+  (e: 'select', note: RelatedNote): void;
 }>();
 
 const { toast } = useToast();
@@ -37,6 +38,24 @@ const content = ref('');
 const tagsInput = ref('');
 const tags = ref<string[]>([]);
 const isSaving = ref(false);
+const relatedNotes = ref<RelatedNote[]>([]);
+const showRelated = ref(false);
+
+// 加载相关笔记
+const loadRelatedNotes = async () => {
+  if (!props.note?.id) {
+    relatedNotes.value = [];
+    showRelated.value = false;
+    return;
+  }
+  try {
+    relatedNotes.value = await getRelatedNotes(props.note.id);
+    showRelated.value = relatedNotes.value.length > 0;
+  } catch (error) {
+    console.error('Failed to load related notes:', error);
+    showRelated.value = false;
+  }
+};
 
 watch(
   () => props.note,
@@ -46,11 +65,14 @@ watch(
       content.value = newNote.content;
       tags.value = [...newNote.tags];
       tagsInput.value = newNote.tags.join(', ');
+      loadRelatedNotes();
     } else {
       title.value = '';
       content.value = '';
       tags.value = [];
       tagsInput.value = '';
+      relatedNotes.value = [];
+      showRelated.value = false;
     }
   },
   { immediate: true },
@@ -170,6 +192,29 @@ const previewHtml = computed(() => marked.parse(content.value));
             @click="tags = tags.filter((t) => t !== tag)"
           />
         </Badge>
+      </div>
+    </div>
+
+    <!-- 相关笔记 -->
+    <div v-if="showRelated && note" class="p-4 border-b bg-muted/30">
+      <div class="flex items-center gap-2 mb-2">
+        <Link class="h-4 w-4 text-muted-foreground" />
+        <span class="text-sm font-medium">相关笔记</span>
+      </div>
+      <div class="flex gap-2 overflow-x-auto">
+        <Button
+          v-for="related in relatedNotes"
+          :key="related.id"
+          variant="outline"
+          size="sm"
+          class="whitespace-nowrap"
+          @click="emit('select', related)"
+        >
+          {{ related.title || '无标题' }}
+          <Badge v-if="related.matchScore" variant="secondary" class="ml-1">
+            {{ related.matchScore }}
+          </Badge>
+        </Button>
       </div>
     </div>
 
