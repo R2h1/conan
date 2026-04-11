@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client/index.js';
 import { requireAuth } from '../plugins/auth-middleware.js';
 
 const prisma = new PrismaClient();

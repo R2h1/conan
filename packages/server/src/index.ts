@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import cookie from '@fastify/cookie';
 import jwt from '@fastify/jwt';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client/index.js';
 import authRoutes from './routes/auth.js';
 import ideaRoutes from './routes/ideas.js';
 import { requireAuth } from './plugins/auth-middleware.js';
@@ -46,7 +46,7 @@ fastify.get('/api/stats', async (request, reply) => {
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
   const weekNotes = await prisma.note.count({
-    where: { userId: user.userId, createdAt: { gte: oneWeekAgo } }
+    where: { userId: user.userId, createdAt: { gte: oneWeekAgo } },
   });
 
   return { notes: noteCount, ideas: ideaCount, weekNotes, toolUses: 0 };
@@ -98,7 +98,10 @@ fastify.get('/api/notes', async (request, reply) => {
     orderBy: { updatedAt: 'desc' },
   });
   // 将 tags 字符串转回数组
-  return notes.map((n: any) => ({ ...n, tags: n.tags ? n.tags.split(',') : [] }));
+  return notes.map((n: any) => ({
+    ...n,
+    tags: n.tags ? n.tags.split(',') : [],
+  }));
 });
 
 // 获取单个笔记 - 需要认证
