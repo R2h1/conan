@@ -26,6 +26,15 @@
         </div>
         <div class="flex items-center gap-2">
           <ThemeToggle />
+          <!-- 用户信息和退出 -->
+          <div v-if="authStore.isAuthenticated" class="flex items-center gap-2 ml-2">
+            <span class="text-sm text-muted-foreground hidden md:inline-block">
+              {{ authStore.user?.name }}
+            </span>
+            <Button variant="outline" size="sm" @click="handleLogout">
+              退出
+            </Button>
+          </div>
         </div>
       </div>
     </header>
@@ -123,8 +132,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { RouterLink, RouterView } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { RouterLink, RouterView, useRouter } from 'vue-router';
 import {
   Menu,
   ChevronLeft,
@@ -143,9 +152,28 @@ import {
   TooltipContent,
 } from '@/components/ui/tooltip';
 import ThemeToggle from '@/components/theme-toggle.vue';
+import { useAuthStore } from '@/stores/auth';
 
 const sidebarCollapsed = ref(false);
 const mobileMenuOpen = ref(false);
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+// 组件挂载时检查用户登录状态
+onMounted(async () => {
+  try {
+    await authStore.fetchUser();
+  } catch (e) {
+    // 未登录，重定向到登录页
+    router.push('/login');
+  }
+});
+
+const handleLogout = async () => {
+  await authStore.logout();
+  router.push('/login');
+};
 
 const navItems = [
   { name: '仪表盘', path: '/', icon: LayoutDashboard },

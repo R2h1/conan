@@ -2,7 +2,23 @@
   "permissions": {
     "allow": [
       "Bash(dir /b d:\\\\conan\\\\conan\\\\packages)",
-      "Bash(dir \"d:\\\\conan\\\\conan\")"
+      "Bash(dir \"d:\\\\conan\\\\conan\")",
+      "Bash(pnpm add:*)",
+      "Bash(npx prisma:*)",
+      "Bash(pnpm build:*)",
+      "Bash(npx tsx:*)",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__list_pages",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__wait_for",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__fill_form",
+      "mcp__chrome-devtools__list_network_requests",
+      "mcp__chrome-devtools__get_network_request",
+      "mcp__chrome-devtools__list_console_messages",
+      "Bash(pnpm dev:*)",
+      "mcp__chrome-devtools__select_page"
     ]
   }
 }

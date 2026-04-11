@@ -3,6 +3,7 @@ import axios from 'axios';
 // 使用环境变量中的 API 地址，默认为本地后端
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000',
+  withCredentials: true, // 携带 cookie
 });
 
 export interface Note {

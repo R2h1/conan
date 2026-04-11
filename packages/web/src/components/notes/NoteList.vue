@@ -94,7 +94,7 @@ const emit = defineEmits<{
             variant="ghost"
             size="icon"
             class="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-            @click="(e) => handleDelete(note.id, e)"
+            @click="(e: Event) => handleDelete(note.id, e)"
           >
             <Trash2 class="h-3 w-3" />
           </Button>

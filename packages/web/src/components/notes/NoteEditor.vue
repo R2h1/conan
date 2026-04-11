@@ -2,7 +2,7 @@
 import { ref, watch, computed } from 'vue';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
-import { createNote, updateNote, type Note } from '@/api/notes';
+import { createNote, updateNote, deleteNote, type Note } from '@/api/notes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,14 +10,15 @@ import { Badge } from '@/components/ui/badge';
 import { X, Save, Trash2 } from 'lucide-vue-next';
 import 'highlight.js/styles/github-dark.css';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 marked.setOptions({
-  highlight: (code, lang) => {
+  highlight: ((code: string, lang: string) => {
     if (lang && hljs.getLanguage(lang)) {
       return hljs.highlight(code, { language: lang }).value;
     }
     return hljs.highlightAuto(code).value;
-  },
-});
+  }) as any,
+} as any);
 
 const props = defineProps<{
   note: Note | null;
@@ -80,7 +81,7 @@ const saveNote = async () => {
   }
 };
 
-const deleteNote = async () => {
+const deleteCurrentNote = async () => {
   if (!props.note?.id) return;
   if (confirm('确定删除此笔记吗？')) {
     isSaving.value = true;
@@ -95,7 +96,7 @@ const deleteNote = async () => {
   }
 };
 
-const previewHtml = computed(() => marked(content.value));
+const previewHtml = computed(() => marked.parse(content.value));
 </script>
 
 <template>
@@ -117,7 +118,7 @@ const previewHtml = computed(() => marked(content.value));
       <Button
         variant="destructive"
         size="sm"
-        @click="deleteNote"
+        @click="deleteCurrentNote"
         v-if="note"
         :disabled="isSaving"
       >
