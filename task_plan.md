@@ -68,56 +68,12 @@
 | 4. 布局优化 | ✅ 完成 | 侧边栏动效、页面切换过渡 |
 | 5. Tools 页面扩展 | ✅ 完成 | 新增时间戳转换、Base64 编解码等工具 |
 
-### 关键文件路径
-
-#### 需要修改的文件
-- `packages/web/src/views/Dashboard.vue`
-- `packages/web/src/views/Ideas.vue`
-- `packages/web/src/views/Landing.vue`
-- `packages/web/src/views/Tools.vue`
-- `packages/web/src/layouts/DefaultLayout.vue`
-- `packages/web/src/styles.css`
-
-#### 需要创建的文件
-- `packages/web/src/components/ideas/IdeaCard.vue`
-- `packages/web/src/components/ideas/IdeaList.vue`
-- `packages/web/src/components/ideas/IdeaEditor.vue`
-- `packages/web/src/components/dashboard/StatCard.vue`
-- `packages/web/src/components/dashboard/QuickActions.vue`
-- `packages/web/src/components/dashboard/RecentActivity.vue`
-- `packages/web/src/components/tools/TimestampConverter.vue`
-- `packages/web/src/components/tools/Base64Converter.vue`
-
-### 设计原则
-
-1. **简洁优先**: 保持界面简洁，避免过度设计
-2. **一致性**: 所有页面使用统一的设计语言
-3. **渐进增强**: 在现有基础上逐步优化
-4. **移动优先**: 确保移动端体验流畅
-5. **性能友好**: 避免过多的动画和复杂计算
-
-### 技术栈
-
-- **框架**: Vue 3 + Vite + TypeScript
-- **UI 库**: shadcn-vue (reka-ui 无头组件)
-- **样式**: Tailwind CSS + CSS 变量主题系统
-- **图标**: lucide-vue-next
-- **状态管理**: Pinia
-
 ---
 
 ## 任务 3：Toast 提示系统（已完成）
 
 ### 目标
 为 Conan 平台添加统一的 Toast 提示系统，提升用户体验。
-
-### 需求
-- 支持成功、错误、警告、信息四种类型
-- 自动消失（可配置时间）
-- 支持手动关闭
-- 多个 Toast 堆叠显示
-- 响应式支持（移动端适配）
-- 与现有主题系统（明暗模式）集成
 
 ### 阶段
 
@@ -131,36 +87,7 @@
 | 6. 集成到 Dashboard 页面 | ✅ 完成 | Dashboard.vue 快速记录提示 |
 | 7. 集成到 Tools 页面 | ✅ 完成 | Tools.vue JSON/Base64/时间戳操作提示 |
 
-### 技术方案
-
-采用 shadcn-vue 官方 Toast 组件，通过 CLI 安装：
-
-```bash
-npx shadcn-vue add toast
-```
-
-**已安装文件**:
-```
-packages/web/src/components/ui/toast/
-  - Toast.vue
-  - ToastAction.vue
-  - ToastClose.vue
-  - ToastDescription.vue
-  - ToastProvider.vue
-  - ToastTitle.vue
-  - ToastViewport.vue
-  - Toaster.vue
-  - index.ts
-  - use-toast.ts
-```
-
-### 用户决策
-| 问题 | 选择 |
-|------|------|
-| Toast 实现方式 | shadcn-vue 官方组件（而非自研） |
-
 ### 完成总结
-
 Toast 提示系统已全部集成完成，覆盖以下场景：
 - ✅ 登录/注册成功/失败
 - ✅ 笔记保存/删除
@@ -170,3 +97,126 @@ Toast 提示系统已全部集成完成，覆盖以下场景：
 - ✅ 时间戳转换
 - ✅ Base64 编解码
 - ✅ 复制输出
+
+### MCP 测试结果
+| 测试项 | 结果 |
+|--------|------|
+| 登录失败 Toast | ✅ 通过 |
+| 登录成功 Toast | ✅ 通过 |
+| 笔记创建 Toast | ✅ 通过 |
+| JSON 格式化错误 Toast | ✅ 通过 |
+| JSON 格式化成功 Toast | ✅ 通过 |
+
+---
+
+## 任务 4：灵感箱 (Ideas) 后端 API 实现（进行中）
+
+### 目标
+为灵感箱功能添加完整的后端 API 支持，实现数据的持久化存储。
+
+### 现状分析
+- **前端**：Ideas.vue 已完整实现，使用模拟数据
+- **后端**：缺少 Idea 数据模型和 API 路由
+- **数据**：刷新页面后数据丢失
+
+### 需求
+- 支持灵感的增删改查
+- 支持分类、标签、优先级、完成状态
+- 按用户隔离数据
+- 支持筛选和排序
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 1. Prisma Schema 扩展 | ✅ 完成 | 添加 Idea 模型 |
+| 2. 后端 API 路由 | ✅ 完成 | 创建 /api/ideas 路由 |
+| 3. 前端 API 客户端 | ✅ 完成 | 创建 src/api/ideas.ts |
+| 4. Ideas 页面集成 | ✅ 完成 | 替换模拟数据为真实 API |
+| 5. 数据迁移 | ✅ 完成 | 运行 prisma db push |
+| 6. 测试验证 | ✅ 完成 | MCP 测试灵感功能 |
+
+### 完成总结
+
+灵感箱后端 API 已全部完成，功能包括：
+- ✅ 获取灵感列表（支持分类/优先级/完成状态/标签筛选）
+- ✅ 获取单个灵感
+- ✅ 创建灵感
+- ✅ 更新灵感
+- ✅ 删除灵感
+- ✅ 切换完成状态
+
+### MCP 测试结果
+| 测试项 | 结果 |
+|--------|------|
+| 创建灵感 | ✅ 通过 |
+| 编辑灵感 | ✅ 通过 |
+| 删除灵感 | ✅ 通过 |
+| Toast 提示 | ✅ 通过 |
+
+### 关键文件路径
+
+**需要创建的文件**:
+- `packages/server/src/routes/ideas.ts`
+- `packages/web/src/api/ideas.ts`
+
+**需要修改的文件**:
+- `packages/server/prisma/schema.prisma`
+- `packages/server/src/index.ts`
+- `packages/web/src/views/Ideas.vue`
+
+---
+
+## 任务 5：Dashboard 真实数据集成（已完成）
+
+### 目标
+将 Dashboard 的统计数据和最近访问列表连接到真实 API。
+
+### 现状
+- 统计数据是硬编码的模拟值
+- 最近访问列表是静态数据
+- 快速记录功能未实现实际保存
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 1. 统计 API | ✅ 完成 | 创建 /api/stats 端点 |
+| 2. 前端集成 | ✅ 完成 | Dashboard.vue 调用 API |
+| 3. 快速记录实现 | ✅ 完成 | 保存到笔记 API |
+
+### 完成总结
+
+Dashboard 真实数据集成已完成，功能包括：
+- ✅ 统计数据 API（笔记总数、灵感数、本周笔记数）
+- ✅ 前端自动加载统计数据
+- ✅ 快速记录功能（保存到笔记 API）
+- ✅ 保存后自动更新统计
+
+### 关键文件路径
+
+**创建的文件**:
+- `packages/web/src/api/stats.ts`
+
+**修改的文件**:
+- `packages/server/src/index.ts` - 添加 /api/stats 端点
+- `packages/web/src/views/Dashboard.vue` - 集成真实 API
+
+---
+
+## 设计原则
+
+1. **简洁优先**: 保持界面简洁，避免过度设计
+2. **一致性**: 所有页面使用统一的设计语言
+3. **渐进增强**: 在现有基础上逐步优化
+4. **移动优先**: 确保移动端体验流畅
+5. **性能友好**: 避免过多的动画和复杂计算
+
+## 技术栈
+
+- **框架**: Vue 3 + Vite + TypeScript
+- **UI 库**: shadcn-vue (reka-ui 无头组件)
+- **样式**: Tailwind CSS + CSS 变量主题系统
+- **图标**: lucide-vue-next
+- **状态管理**: Pinia
+- **后端**: Fastify + Prisma + SQLite

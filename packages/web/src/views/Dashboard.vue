@@ -74,9 +74,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/components/ui/toast';
+import { getStats } from '@/api/stats';
+import { createNote } from '@/api/notes';
 import {
   BookOpen,
   Lightbulb,
@@ -96,13 +98,28 @@ import { Textarea } from '@/components/ui/textarea';
 const router = useRouter();
 const { toast } = useToast();
 
-// 模拟统计数据（实际应从 API 获取）
+// 统计数据
 const stats = ref({
-  notes: 12,
-  ideas: 8,
-  weekVisits: 24,
-  toolUses: 15,
+  notes: 0,
+  ideas: 0,
+  weekVisits: 0,
+  toolUses: 0,
 });
+
+// 加载统计数据
+const loadStats = async () => {
+  try {
+    const data = await getStats();
+    stats.value = {
+      notes: data.notes,
+      ideas: data.ideas,
+      weekVisits: data.weekNotes,
+      toolUses: data.toolUses,
+    };
+  } catch (error) {
+    console.error('Failed to load stats:', error);
+  }
+};
 
 // 快捷操作
 const quickActions = [
@@ -166,14 +183,32 @@ const handleRecentClick = (item: typeof recentItems.value[0]) => {
   }
 };
 
-const handleQuickSave = () => {
-  // TODO: 实现快速保存功能
-  console.log('Quick save:', quickNote.value, quickTags.value);
-  toast({
-    title: '快速记录已保存',
-    description: '内容已保存到笔记',
-  });
-  quickNote.value = '';
-  quickTags.value = '';
+const handleQuickSave = async () => {
+  try {
+    const tags = quickTags.value ? quickTags.value.split(',').map((t: string) => t.trim()) : [];
+    await createNote({
+      title: '快速记录',
+      content: quickNote.value,
+      tags,
+    });
+    toast({
+      title: '快速记录已保存',
+      description: '内容已保存到笔记',
+    });
+    quickNote.value = '';
+    quickTags.value = '';
+    // 重新加载统计数据
+    await loadStats();
+  } catch (error) {
+    toast({
+      title: '保存失败',
+      description: '请稍后重试',
+      variant: 'destructive',
+    });
+  }
 };
+
+onMounted(() => {
+  loadStats();
+});
 </script>

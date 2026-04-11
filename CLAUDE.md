@@ -76,3 +76,31 @@ GitHub Actions 在推送到 `main` 分支时自动部署：
 - 后端在数据库中将 tags 存为逗号分隔字符串，API 响应时转换为数组
 - 前端使用 reka-ui (无头 UI 库) 提供 Sheet、Tooltip 等组件
 - 服务器运行在端口 3000，开发模式下 CORS 允许所有来源
+
+## MCP 测试工作流程
+
+**重要**: 功能开发完成后，使用 Chrome MCP 进行自动化测试，而非手动在浏览器中测试。
+
+### 测试步骤
+
+1. **打开页面** - 使用 `navigate_page` 访问前端页面
+2. **截图/快照** - 使用 `take_snapshot` 获取页面元素结构
+3. **执行操作** - 使用 `click`, `fill`, `type_text` 等工具模拟用户交互
+4. **验证结果** - 检查网络请求 (`list_network_requests`) 和页面状态
+5. **记录结果** - 在 progress.md 中记录测试通过/失败情况
+
+### 默认测试账户
+
+```
+用户名：admin
+邮箱：admin@conan.local
+密码：admin123
+```
+
+### 测试覆盖范围
+
+- 用户认证流程（登录/注册/退出）
+- CRUD 操作（笔记、灵感）
+- Toast 提示反馈
+- 统计数据 API
+- 工具功能（JSON 格式化、时间戳转换、Base64 编解码）

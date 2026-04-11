@@ -112,6 +112,93 @@ cd packages/web && pnpm dev      # 仅前端
 
 ---
 
+## 2026-04-11 会话 8 - Dashboard 真实数据集成
+
+### 阶段 1：统计 API 实现 ✅
+
+**创建文件**: `packages/web/src/api/stats.ts`
+
+**修改文件**: `packages/server/src/index.ts`
+
+**新增 API 端点**:
+- `GET /api/stats` - 获取用户统计数据
+  - notes: 笔记总数
+  - ideas: 灵感总数
+  - weekNotes: 本周创建的笔记数
+  - toolUses: 工具使用次数（预留，返回 0）
+
+### 阶段 2：前端集成 ✅
+
+**修改文件**: `packages/web/src/views/Dashboard.vue`
+
+**功能**:
+- 组件挂载时自动调用 `getStats()` 加载统计数据
+- 替换原有的硬编码模拟数据
+- 支持错误处理和降级
+
+### 阶段 3：快速记录实现 ✅
+
+**修改文件**: `packages/web/src/views/Dashboard.vue`
+
+**功能**:
+- 快速记录内容保存到笔记 API
+- 支持标签（逗号分隔）
+- 保存成功后显示 Toast 提示
+- 自动重新加载统计数据
+
+### MCP 测试结果 ✅
+
+| 测试项 | 操作 | 预期结果 | 结果 |
+|--------|------|----------|------|
+|  stats API | GET /api/stats | 返回统计数据 | ✅ 通过 - `{"notes":0,"ideas":0,"weekNotes":0,"toolUses":0}` |
+| 快速记录 | 填写内容并点击保存 | POST /api/notes 200 | ✅ 通过 - 笔记创建成功 |
+| 统计更新 | 保存后重新加载 | notes 从 0 变 1 | ✅ 通过 - 数据正确更新 |
+| 数据持久化 | 检查数据库 | 笔记关联到用户 | ✅ 通过 - userId=3 |
+
+### 测试详情
+
+**快速记录请求**:
+```json
+POST /api/notes
+{
+  "title": "快速记录",
+  "content": "测试快速记录 - MCP 自动化测试",
+  "tags": ["测试，MCP"]
+}
+```
+
+**响应**:
+```json
+{
+  "id": 3,
+  "title": "快速记录",
+  "content": "测试快速记录 - MCP 自动化测试",
+  "tags": ["测试，MCP"],
+  "userId": 3,
+  "createdAt": "2026-04-11T08:56:51.022Z"
+}
+```
+
+**统计更新后**:
+```json
+{"notes":1,"ideas":0,"weekNotes":1,"toolUses":0}
+```
+
+### 完成总结
+
+Dashboard 真实数据集成已完成：
+- ✅ 统计 API 端点创建
+- ✅ 前端自动加载统计数据
+- ✅ 快速记录功能实现
+- ✅ 保存后自动更新统计
+- ✅ MCP 自动化测试通过
+
+### 下一步
+
+用户可以访问 http://localhost:5173 查看 Dashboard 页面，统计卡片将显示真实的用户数据。
+
+---
+
 ## 2026-04-11 会话 4 - UI 重新设计
 
 ### 阶段 0：设计语言定义 ✅
@@ -327,3 +414,64 @@ Toast 提示系统已全部集成完成，共修改 **7 个文件**：
 
 ### 测试结论
 Toast 提示系统功能正常，所有用户交互都有及时的视觉反馈。
+
+---
+
+## 2026-04-11 会话 7 - 灵感箱后端 API 实现
+
+### 阶段 1：Prisma Schema 扩展 ✅
+
+**修改文件**: `packages/server/prisma/schema.prisma`
+
+**新增 Idea 模型**:
+```prisma
+model Idea {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  category    String?
+  tags        String
+  priority    String   @default("medium")
+  completed   Boolean  @default(false)
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+```
+
+### 阶段 2：后端 API 路由 ✅
+
+**创建文件**: `packages/server/src/routes/ideas.ts`
+
+**API 端点**:
+- `GET /api/ideas` - 获取灵感列表（支持筛选和排序）
+- `GET /api/ideas/:id` - 获取单个灵感
+- `POST /api/ideas` - 创建灵感
+- `PUT /api/ideas/:id` - 更新灵感
+- `DELETE /api/ideas/:id` - 删除灵感
+- `PATCH /api/ideas/:id/toggle` - 切换完成状态
+
+**修改文件**: `packages/server/src/index.ts` - 注册 ideas 路由
+
+### 阶段 3：前端 API 客户端 ✅
+
+**创建文件**: `packages/web/src/api/ideas.ts`
+
+### 阶段 4：Ideas 页面集成 ✅
+
+**修改文件**: `packages/web/src/views/Ideas.vue`
+
+### 阶段 5：数据迁移 ✅
+
+**命令**: `npx prisma db push`
+
+### 阶段 6：MCP 测试验证 ✅
+
+| 测试项 | 结果 |
+|--------|------|
+| 创建灵感 | ✅ 通过 |
+| 编辑灵感 | ✅ 通过 |
+| 删除灵感 | ✅ 通过 |
+
+---

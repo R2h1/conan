@@ -4,6 +4,7 @@ import cookie from '@fastify/cookie';
 import jwt from '@fastify/jwt';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.js';
+import ideaRoutes from './routes/ideas.js';
 import { requireAuth } from './plugins/auth-middleware.js';
 
 const prisma = new PrismaClient();
@@ -33,6 +34,26 @@ fastify.register(jwt, {
 
 // 注册认证路由
 fastify.register(authRoutes);
+
+// 获取统计数据 - 需要认证
+fastify.get('/api/stats', async (request, reply) => {
+  await requireAuth(request, reply);
+  const user: any = request.user;
+
+  const noteCount = await prisma.note.count({ where: { userId: user.userId } });
+  const ideaCount = await prisma.idea.count({ where: { userId: user.userId } });
+
+  const oneWeekAgo = new Date();
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+  const weekNotes = await prisma.note.count({
+    where: { userId: user.userId, createdAt: { gte: oneWeekAgo } }
+  });
+
+  return { notes: noteCount, ideas: ideaCount, weekNotes, toolUses: 0 };
+});
+
+// 注册灵感路由
+fastify.register(ideaRoutes);
 
 // 获取当前用户信息
 fastify.get('/api/auth/me', async (request, reply) => {

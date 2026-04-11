@@ -28,7 +28,9 @@
       "Bash(findstr node:*)",
       "Bash(powershell -Command *)",
       "Bash(Stop-Process *)",
-      "mcp__chrome-devtools__fill"
+      "mcp__chrome-devtools__fill",
+      "Bash(npx tsc:*)",
+      "mcp__chrome-devtools__handle_dialog"
     ]
   }
 }
