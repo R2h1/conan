@@ -89,12 +89,19 @@ jobs:
           key: ${{ secrets.DEPLOY_KEY }}
           script: |
             cd ${{ secrets.DEPLOY_PATH_BACKEND }}
+
+            # 创建 .env 文件
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
+            echo "DATABASE_URL=file:./dev.db" >> .env
+            echo "PORT=3000" >> .env
+            echo "CORS_ORIGIN=http://app.conan.js.cn" >> .env
+
             # 安装生产依赖
-            pnpm install --prod --frozen-lockfile --ignore-scripts || npm install --production
+            pnpm install --prod --ignore-scripts || npm install --production --omit=dev
             # 生成 Prisma 客户端
             npx prisma generate
-            # 同步数据库结构（不会清空数据）
+            # 同步数据库结构
             npx prisma db push --accept-data-loss
             # 重启 PM2 进程
-            pm2 restart conan-server || pm2 start dist/index.js --name conan-server
+            pm2 restart conan-server --update-env || pm2 start dist/index.js --name conan-server
             pm2 save
