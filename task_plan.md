@@ -204,6 +204,50 @@ Dashboard 真实数据集成已完成，功能包括：
 
 ---
 
+## 任务 6：部署配置（已完成）
+
+### 目标
+完善 Conan 平台的部署配置和文档。
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 1. 检查现有部署配置 | ✅ 完成 | GitHub Actions workflow 已存在 |
+| 2. 更新部署配置 | ✅ 完成 | 添加 .env.example 模板生成 |
+| 3. 创建 .env 示例文件 | ✅ 完成 | server 和 web 包的 .env.example |
+| 4. 添加部署文档 | ✅ 完成 | DEPLOY.md 详细部署指南 |
+
+### 完成总结
+
+部署配置已完成，包括：
+- ✅ GitHub Actions 自动部署工作流
+- ✅ 后端 .env.example（JWT_SECRET, DATABASE_URL, PORT）
+- ✅ 前端 .env.example（VITE_API_BASE_URL）
+- ✅ 详细部署文档 DEPLOY.md
+
+### 关键文件路径
+
+**创建的文件**:
+- `packages/server/.env.example`
+- `packages/web/.env.example`
+- `DEPLOY.md`
+
+**修改的文件**:
+- `.github/workflows/deploy.yml` - 添加 .env.example 生成步骤
+
+### GitHub Secrets 配置
+
+| Secret | 说明 |
+|--------|------|
+| `DEPLOY_HOST` | 远程服务器 IP 或域名 |
+| `DEPLOY_USER` | SSH 用户名 |
+| `DEPLOY_KEY` | SSH 私钥 |
+| `DEPLOY_PATH_FRONTEND` | 前端部署路径 |
+| `DEPLOY_PATH_BACKEND` | 后端部署路径 |
+
+---
+
 ## 设计原则
 
 1. **简洁优先**: 保持界面简洁，避免过度设计

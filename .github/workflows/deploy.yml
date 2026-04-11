@@ -52,8 +52,15 @@ jobs:
           cp -r packages/web/dist/* deploy_package/frontend/
           cp -r packages/server/dist deploy_package/backend/
           cp packages/server/package.json deploy_package/backend/
-          cp packages/server/prisma/schema.prisma deploy_package/backend/prisma/ 2>/dev/null || true
+          mkdir -p deploy_package/backend/prisma
+          cp packages/server/prisma/schema.prisma deploy_package/backend/prisma/
           cp packages/server/pnpm-lock.yaml deploy_package/backend/ 2>/dev/null || true
+          # 创建 .env 模板
+          echo "# JWT 密钥（必须修改为随机生成的 32+ 字符字符串）" > deploy_package/backend/.env.example
+          echo "JWT_SECRET=your-min-32-char-secret-key-here" >> deploy_package/backend/.env.example
+          echo "" >> deploy_package/backend/.env.example
+          echo "# 数据库路径（SQLite）" >> deploy_package/backend/.env.example
+          echo "DATABASE_URL=file:./dev.db" >> deploy_package/backend/.env.example
 
       - name: Deploy to server via rsync
         uses: burnett01/rsync-deployments@6.0

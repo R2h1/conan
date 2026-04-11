@@ -199,6 +199,81 @@ Dashboard 真实数据集成已完成：
 
 ---
 
+## 2026-04-11 会话 9 - 部署配置
+
+### 阶段 1：检查现有部署配置 ✅
+
+**现有配置**: `.github/workflows/deploy.yml`
+
+**功能**:
+- GitHub Actions 自动部署
+- 推送到 main 分支触发
+- 构建前端和后端
+- 通过 rsync 同步到远程服务器
+- 自动安装依赖、生成 Prisma、重启 PM2
+
+### 阶段 2：更新部署配置 ✅
+
+**修改文件**: `.github/workflows/deploy.yml`
+
+**改进**:
+- 添加 `.env.example` 生成步骤
+- 包含 JWT_SECRET 和 DATABASE_URL 配置模板
+
+### 阶段 3：创建 .env 示例文件 ✅
+
+**创建文件**:
+- `packages/server/.env.example` - 后端环境配置模板
+- `packages/web/.env.example` - 前端环境配置模板
+
+**后端配置**:
+```bash
+JWT_SECRET=your-min-32-char-secret-key-here
+DATABASE_URL=file:./dev.db
+PORT=3000
+```
+
+**前端配置**:
+```bash
+VITE_API_BASE_URL=http://localhost:3000
+```
+
+### 阶段 4：添加部署文档 ✅
+
+**创建文件**: `DEPLOY.md`
+
+**内容**:
+- GitHub Actions 自动部署步骤
+- GitHub Secrets 配置清单
+- SSH 密钥生成方法
+- 手动部署步骤
+- 服务器要求（Node.js 22, pnpm, PM2）
+- Nginx 反向代理配置示例
+- HTTPS 配置（Certbot）
+- 数据库备份方法
+- 日志查看命令
+- 常见问题解答
+
+### 完成总结
+
+部署配置已全部完成：
+- ✅ GitHub Actions 工作流优化
+- ✅ .env.example 文件创建
+- ✅ 详细部署文档 DEPLOY.md
+- ✅ MCP 测试工作流程写入 CLAUDE.md
+
+### GitHub Secrets 清单
+
+| Secret | 用途 |
+|--------|------|
+| `DEPLOY_HOST` | 远程服务器 IP/域名 |
+| `DEPLOY_USER` | SSH 用户名 |
+| `DEPLOY_KEY` | SSH 部署私钥 |
+| `DEPLOY_PATH_FRONTEND` | 前端部署目录 |
+| `DEPLOY_PATH_BACKEND` | 后端部署目录 |
+
+---
+
 ## 2026-04-11 会话 4 - UI 重新设计
 
 ### 阶段 0：设计语言定义 ✅
