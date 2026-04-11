@@ -109,3 +109,107 @@ pnpm dev
 cd packages/server && pnpm dev   # 仅后端
 cd packages/web && pnpm dev      # 仅前端
 ```
+
+---
+
+## 2026-04-11 会话 4 - UI 重新设计
+
+### 阶段 0：设计语言定义 ✅
+
+**修改文件**: `packages/web/src/styles.css`
+
+**新增内容**:
+- 优化的 CSS 变量系统（浅色/深色模式）
+- 统一的阴影规范（sm, md, lg, xl）
+- 组件样式：card, card-clickable, btn, badge
+- 工具样式：text-gradient, glass
+- 动画：fade-in, slide-in, scale-in, shake
+- 页面过渡和列表过渡效果
+
+### 阶段 1：Dashboard 页面 ✅
+
+**创建文件**:
+- `packages/web/src/components/dashboard/StatCard.vue` - 统计卡片组件
+- `packages/web/src/components/dashboard/QuickActions.vue` - 快捷操作组件
+- `packages/web/src/components/dashboard/RecentActivity.vue` - 最近访问组件
+
+**修改文件**:
+- `packages/web/src/views/Dashboard.vue` - 完整实现仪表盘页面
+
+**功能**:
+- 统计卡片（笔记总数、灵感记录、本周访问、工具使用）
+- 快捷操作入口（新建笔记、记录灵感、工具集）
+- 最近访问列表
+- 快速记录功能
+
+### 阶段 2：Ideas 页面 ✅
+
+**创建文件**:
+- `packages/web/src/components/ideas/IdeaCard.vue` - 灵感卡片组件
+- `packages/web/src/components/ideas/IdeaList.vue` - 灵感列表组件（支持网格/列表视图）
+- `packages/web/src/components/ideas/IdeaEditor.vue` - 灵感编辑器弹窗
+
+**修改文件**:
+- `packages/web/src/views/Ideas.vue` - 完整实现灵感箱页面
+
+**功能**:
+- 灵感卡片展示（网格/列表视图切换）
+- 分类筛选和排序（最新/最早/优先级）
+- 优先级标记（高/中/低）
+- 完成状态标记
+- 标签管理
+- 快速创建和编辑
+
+### 阶段 3：Landing 页优化 ✅
+
+**修改文件**: `packages/web/src/views/Landing.vue`
+
+**改进**:
+- 添加英雄区图标动画（脉冲背景、缩放进入）
+- 标题和描述的滑动淡入效果
+- 按钮悬停动画（箭头移动）
+- 功能特性卡片悬停效果
+- 底部 CTA 区域
+- 装饰性背景模糊元素
+
+### 阶段 4：布局优化 ✅
+
+**修改文件**: `packages/web/src/layouts/DefaultLayout.vue`
+
+**改进**:
+- 添加页面切换过渡效果（淡入淡出 + 滑动）
+- 使用 Vue 的 `<Transition>` 组件包装 RouterView
+- 统一的过渡动画样式
+
+### 阶段 5：Tools 页面扩展 ✅
+
+**修改文件**: `packages/web/src/views/Tools.vue`
+
+**新增工具**:
+- **时间戳转换**：Unix 时间戳与日期时间互相转换
+  - 时间戳 → 日期时间（自动识别秒/毫秒）
+  - 日期时间 → 时间戳
+  - 快捷按钮：当前时间戳、当前日期时间
+- **Base64 编解码**：
+  - Base64 编码（支持中文）
+  - Base64 解码
+  - 一键复制输出
+
+**原有工具**:
+- JSON 格式化/压缩/校验
+
+**UI 改进**:
+- 标签页切换式布局
+- 统一的工具卡片设计
+
+---
+
+## 完成总结
+
+本次 UI 重新设计共完成：
+- **6 个阶段** 全部完成
+- **10 个新组件** 创建
+- **5 个页面** 重新设计或完善
+- **3 个新工具** 添加到工具集
+
+所有功能均已编译通过，可以启动开发服务器进行功能测试。

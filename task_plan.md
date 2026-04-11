@@ -1,16 +1,18 @@
-# 任务计划：用户系统
+# 任务计划：Conan 数字平台
 
-## 目标
+## 任务 1：用户系统（已完成）
+
+### 目标
 为 Conan 平台添加完整的用户认证系统，实现多用户支持和数据隔离。
 
-## 用户决策
+### 用户决策
 | 问题 | 选择 |
 |------|------|
 | JWT 密钥管理 | 服务器环境变量注入 |
 | 注册字段 | 用户名 + 邮箱 + 密码 |
 | 现有笔记处理 | 迁移到默认用户 |
 
-## 阶段
+### 阶段
 
 | 阶段 | 状态 | 说明 |
 |------|------|------|
@@ -33,67 +35,7 @@
 | 17. 功能验证 | ✅ 完成 | Chrome MCP 测试通过 |
 | 18. 路由守卫修复 | ✅ 完成 | 修复未登录可访问 /app 的问题 |
 
-## 关键文件路径
-
-### 后端
-- `packages/server/prisma/schema.prisma`
-- `packages/server/src/index.ts`
-- `packages/server/src/plugins/auth.ts`
-- `packages/server/src/plugins/auth-middleware.ts`
-- `packages/server/src/routes/auth.ts`
-- `packages/server/src/lib/password.ts`
-
-### 前端
-- `packages/web/src/main.ts`
-- `packages/web/src/router/index.ts`
-- `packages/web/src/stores/auth.ts`
-- `packages/web/src/api/auth.ts`
-- `packages/web/src/layouts/DefaultLayout.vue`
-- `packages/web/src/views/Login.vue`
-- `packages/web/src/views/Register.vue`
-
-## 后端完成情况
-
-### 已创建文件
-- ✅ `src/lib/password.ts` - 密码哈希工具
-- ✅ `src/plugins/auth.ts` - JWT 插件配置
-- ✅ `src/plugins/auth-middleware.ts` - 认证中间件
-- ✅ `src/routes/auth.ts` - 认证路由
-- ✅ `scripts/migrate-data.ts` - 数据迁移脚本
-
-### 已修改文件
-- ✅ `prisma/schema.prisma` - 添加 User 模型
-- ✅ `src/index.ts` - 注册插件和路由，改造 Note API
-
-### API 端点
-- `POST /api/auth/register` - 注册
-- `POST /api/auth/login` - 登录
-- `GET /api/auth/me` - 获取当前用户
-- `POST /api/auth/logout` - 登出
-- `GET /api/notes` - 获取笔记列表（需认证）
-- `POST /api/notes` - 创建笔记（需认证）
-- `PUT /api/notes/:id` - 更新笔记（需认证）
-- `DELETE /api/notes/:id` - 删除笔记（需认证）
-- `GET /api/notes/:id` - 获取单个笔记（需认证）
-
-## 前端完成情况
-
-### 已创建文件
-- ✅ `src/stores/auth.ts` - Auth Store
-- ✅ `src/api/auth.ts` - Auth API 客户端
-- ✅ `src/views/Login.vue` - 登录页面
-- ✅ `src/views/Register.vue` - 注册页面
-- ✅ `src/components/ui/label/` - Label 组件
-
-### 已修改文件
-- ✅ `src/main.ts` - 初始化 Pinia
-- ✅ `src/api/notes.ts` - 添加 withCredentials
-- ✅ `src/router/index.ts` - 添加路由和导航守卫
-- ✅ `src/layouts/DefaultLayout.vue` - 用户信息和退出按钮
-- ✅ `src/components/notes/NoteEditor.vue` - 修复 TypeScript 错误
-- ✅ `src/components/notes/NoteList.vue` - 修复 TypeScript 错误
-
-## 默认账户
+### 默认账户
 
 ```
 用户名：admin
@@ -101,10 +43,63 @@
 密码：admin123
 ```
 
-## 测试步骤
+---
 
-1. 启动后端：`cd packages/server && pnpm dev`
-2. 启动前端：`cd packages/web && pnpm dev`
-3. 访问 `http://localhost:5173`
-4. 使用默认账户登录
-5. 测试笔记 CRUD 功能
+## 任务 2：UI 重新设计（已完成）
+
+### 目标
+为 Conan 平台建立统一的视觉语言，完善 Dashboard 和 Ideas 页面功能，优化整体 UI 体验。
+
+### 用户决策
+| 问题 | 选择 |
+|------|------|
+| 设计优先级 | 整体风格统一 → 先确定设计语言，再逐个实现 |
+| Ideas 功能 | 完整版本 → 分类、标签、完成状态、优先级排序 |
+| Dashboard 内容 | 全部 → 统计概览 + 快捷入口 + 最近访问 |
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 0. 设计语言定义 | ✅ 完成 | 增强 styles.css，统一视觉规范 |
+| 1. Dashboard 页面 | ✅ 完成 | 统计卡片、快捷入口、最近访问、快速记录 |
+| 2. Ideas 页面 | ✅ 完成 | 灵感卡片、分类标签、优先级、完成状态 |
+| 3. Landing 页优化 | ✅ 完成 | 英雄区动画、功能卡片优化 |
+| 4. 布局优化 | ✅ 完成 | 侧边栏动效、页面切换过渡 |
+| 5. Tools 页面扩展 | ✅ 完成 | 新增时间戳转换、Base64 编解码等工具 |
+
+### 关键文件路径
+
+#### 需要修改的文件
+- `packages/web/src/views/Dashboard.vue`
+- `packages/web/src/views/Ideas.vue`
+- `packages/web/src/views/Landing.vue`
+- `packages/web/src/views/Tools.vue`
+- `packages/web/src/layouts/DefaultLayout.vue`
+- `packages/web/src/styles.css`
+
+#### 需要创建的文件
+- `packages/web/src/components/ideas/IdeaCard.vue`
+- `packages/web/src/components/ideas/IdeaList.vue`
+- `packages/web/src/components/ideas/IdeaEditor.vue`
+- `packages/web/src/components/dashboard/StatCard.vue`
+- `packages/web/src/components/dashboard/QuickActions.vue`
+- `packages/web/src/components/dashboard/RecentActivity.vue`
+- `packages/web/src/components/tools/TimestampConverter.vue`
+- `packages/web/src/components/tools/Base64Converter.vue`
+
+### 设计原则
+
+1. **简洁优先**: 保持界面简洁，避免过度设计
+2. **一致性**: 所有页面使用统一的设计语言
+3. **渐进增强**: 在现有基础上逐步优化
+4. **移动优先**: 确保移动端体验流畅
+5. **性能友好**: 避免过多的动画和复杂计算
+
+### 技术栈
+
+- **框架**: Vue 3 + Vite + TypeScript
+- **UI 库**: shadcn-vue (reka-ui 无头组件)
+- **样式**: Tailwind CSS + CSS 变量主题系统
+- **图标**: lucide-vue-next
+- **状态管理**: Pinia
