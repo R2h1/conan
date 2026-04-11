@@ -101,10 +101,10 @@ jobs:
 
             # 安装生产依赖
             pnpm install --prod --ignore-scripts || npm install --production --omit=dev
-            # 生成 Prisma 客户端
-            npx prisma generate
-            # 同步数据库结构
-            npx prisma db push --accept-data-loss
+            # 生成 Prisma 客户端（使用本地版本）
+            ./node_modules/.bin/prisma generate || npx prisma@5.22.0 generate
+            # 同步数据库结构（使用本地版本）
+            ./node_modules/.bin/prisma db push --accept-data-loss || npx prisma@5.22.0 db push --accept-data-loss
             # 重启 PM2 进程
             pm2 restart conan-server --update-env || pm2 start dist/index.js --name conan-server
             pm2 save
