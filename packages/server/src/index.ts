@@ -16,9 +16,9 @@ fastify.register(cookie, {
 });
 
 fastify.register(cors, {
-  origin: true,
+  origin: process.env.CORS_ORIGIN || true,
   credentials: true,
-}); // 开发时允许所有，生产可限制
+});
 
 // 注册 JWT 插件（添加 cookie 配置以自动从 cookie 读取 token）
 fastify.register(jwt, {
