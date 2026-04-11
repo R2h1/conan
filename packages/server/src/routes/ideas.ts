@@ -57,7 +57,7 @@ export default async function ideaRoutes(fastify: FastifyInstance) {
     });
 
     // 将 tags 字符串转回数组
-    return ideas.map((i) => ({
+    return ideas.map((i: any) => ({
       ...i,
       tags: i.tags ? i.tags.split(',') : [],
     }));

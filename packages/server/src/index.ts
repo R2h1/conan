@@ -98,7 +98,7 @@ fastify.get('/api/notes', async (request, reply) => {
     orderBy: { updatedAt: 'desc' },
   });
   // 将 tags 字符串转回数组
-  return notes.map((n) => ({ ...n, tags: n.tags ? n.tags.split(',') : [] }));
+  return notes.map((n: any) => ({ ...n, tags: n.tags ? n.tags.split(',') : [] }));
 });
 
 // 获取单个笔记 - 需要认证
