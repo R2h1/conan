@@ -903,3 +903,23 @@ feat: 添加笔记关联功能
 1. 启动开发服务器 (`pnpm dev`) 测试功能
 2. 使用不同用户登录验证用户隔离
 3. 验证最近访问记录动态更新
+
+### 代码推送完成 ✅
+**时间**: 2026-04-17  
+**提交哈希**: `4756918`  
+**提交消息**: `feat: 修复最近访问功能的用户隔离和动态更新`
+
+**推送结果**: 成功推送到远程仓库 `https://github.com/R2h1/conan.git`
+
+**更改统计**:
+- 21个文件发生更改
+- 1333行新增，74行删除
+- 创建4个新文件
+
+**关键文件**:
+- `packages/server/src/routes/activities.ts` - 活动记录API
+- `packages/web/src/api/activities.ts` - 前端API客户端
+- `packages/web/src/views/Dashboard.vue` - 替换模拟数据为真实API
+- `packages/web/src/router/index.ts` - 添加页面访问记录
+
+**状态**: 代码已推送到远程仓库，GitHub Actions将自动触发部署流程
