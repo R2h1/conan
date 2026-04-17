@@ -47,4 +47,4 @@ coverage/
 deploy-key
 deploy-key.pub
 
-.claude/settings.local.json
+settings.local.json
