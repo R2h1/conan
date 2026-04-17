@@ -33,6 +33,7 @@ interface RecentItem {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any;
   href?: string;
+  type: string;
 }
 
 defineProps<{

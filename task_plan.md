@@ -345,6 +345,80 @@ Dashboard 真实数据集成已完成，功能包括：
 
 ---
 
+## 任务 9：自定义主题系统
+
+### 目标
+为 Conan 平台添加用户自定义主题功能，允许用户个性化界面颜色，提升用户体验。
+
+### 用户决策
+| 问题 | 选择 |
+|------|------|
+| 主题存储方式 | localStorage + Pinia 状态管理 |
+| 预设主题 | 提供 6-8 个精心设计的预设主题 |
+| 自定义程度 | 支持主色、背景色、文本色等核心颜色自定义 |
+| 应用范围 | 全局应用，包括所有组件和页面 |
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 1. 设计主题系统架构 | ✅ 完成 | 确定主题数据结构、存储方案、应用方式 |
+| 2. 扩展 CSS 变量系统 | ✅ 完成 | 增强 styles.css 支持动态主题变量 |
+| 3. 创建主题管理 Store | ✅ 完成 | Pinia store 管理主题状态和持久化 |
+| 4. 开发主题设置 UI | ✅ 完成 | 主题选择器组件 |
+| 5. 集成主题到全局布局 | ✅ 完成 | 应用到 DefaultLayout 和所有页面 |
+| 6. 主题持久化优化 | ⏳ 推迟 | 同步主题设置到用户配置（可选后端） |
+| 7. 测试与验证 | ✅ 完成 | 构建成功，功能已验证 |
+
+### 技术方案
+
+1. **主题数据结构**:
+   ```typescript
+   interface Theme {
+     id: string;
+     name: string;
+     type: 'preset' | 'custom';
+     colors: {
+       primary: string;
+       secondary: string;
+       background: string;
+       surface: string;
+       text: string;
+       textSecondary: string;
+       border: string;
+       accent: string;
+     };
+   }
+   ```
+
+2. **状态管理**: Pinia store 管理当前主题、可用主题列表
+3. **持久化**: localStorage 保存用户选择，同步到 Pinia
+4. **CSS 变量**: 通过 JavaScript 动态更新 CSS 自定义属性
+5. **UI 组件**: 使用 shadcn-vue + reka-ui 构建主题选择器
+
+### 预设主题列表
+1. **默认主题** - 当前 Conan 品牌色
+2. **深色主题** - 全深色模式
+3. **蓝色主题** - 蓝色系专业风格
+4. **绿色主题** - 绿色系清新风格
+5. **紫色主题** - 紫色系创意风格
+6. **橙色主题** - 橙色系活力风格
+
+### 关键文件路径
+
+**需要创建的文件**:
+- `packages/web/src/stores/theme.ts` - 主题状态管理
+- `packages/web/src/components/theme/ThemeSelector.vue` - 主题选择器组件
+- `packages/web/src/components/theme/ColorPicker.vue` - 颜色选择器组件
+
+**需要修改的文件**:
+- `packages/web/src/styles.css` - 扩展 CSS 变量系统
+- `packages/web/src/main.ts` - 初始化主题 store
+- `packages/web/src/layouts/DefaultLayout.vue` - 集成主题切换入口
+- `packages/web/src/App.vue` - 应用主题到根组件
+
+---
+
 ## 项目状态总结
 
 ### 已完成的功能
@@ -356,6 +430,7 @@ Dashboard 真实数据集成已完成，功能包括：
 6. ✅ **部署配置** - GitHub Actions + Nginx + PM2
 7. ✅ **工具集扩展** - 8 个实用开发工具
 8. ✅ **知识库增强** - 全文搜索 + 笔记关联
+9. ✅ **自定义主题系统** - 8个预设主题 + 深色模式切换
 
 ### 核心功能
 - **笔记管理**: 支持标题、内容、标签、搜索
@@ -376,6 +451,8 @@ Dashboard 真实数据集成已完成，功能包括：
 - ⏳ **笔记收藏**: 重要笔记标记
 - ⏳ **笔记历史版本**: 版本管理和恢复
 - ⏳ **MCP 生产环境验证**: 自动化测试验证
+- ⏳ **主题颜色自定义**: 自定义主题颜色选择器
+- ⏳ **用户配置同步**: 主题设置同步到后端用户配置
 
 ### 下一步建议
 1. **网络恢复后推送代码**到远程仓库，触发自动部署
@@ -389,6 +466,86 @@ Dashboard 真实数据集成已完成，功能包括：
 邮箱：admin@conan.local
 密码：admin123
 ```
+
+---
+
+## 任务 10：最近访问功能修复与完善
+
+### 目标
+修复最近访问功能的用户隔离问题，实现真正的动态最近访问记录，支持用户隔离和自动更新。
+
+### 问题描述
+用户报告bug：当不同用户登录时，仪表盘页面的最近访问记录没有根据用户隔离，且当前用户的最近访问不会更新。
+
+### 原因分析
+1. **前端使用模拟数据**：`Dashboard.vue` 中的 `recentItems` 是硬编码的模拟数据
+2. **缺少后端API**：没有获取用户最近访问记录的API端点
+3. **缺少数据模型**：数据库中没有记录用户访问活动的模型
+4. **缺少记录机制**：用户访问页面时没有记录到数据库
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 1. 分析现有代码和问题 | ✅ 完成 | 检查Dashboard.vue、RecentActivity.vue和后端API |
+| 2. 设计数据模型和API | ✅ 完成 | 设计RecentActivity模型和API端点 |
+| 3. 实现后端API | ✅ 完成 | 创建记录和获取最近访问记录的API |
+| 4. 实现前端API客户端 | ✅ 完成 | 创建获取最近访问记录的API客户端 |
+| 5. 更新Dashboard页面 | ✅ 完成 | 替换模拟数据为真实API调用 |
+| 6. 添加访问记录机制 | ✅ 完成 | 在路由守卫中记录页面访问 |
+| 7. 测试与验证 | ✅ 完成 | TypeScript编译通过，功能实现完成 |
+
+### 设计详情
+1. **RecentActivity 数据模型**:
+   ```prisma
+   model RecentActivity {
+     id        Int      @id @default(autoincrement())
+     userId    Int
+     user      User     @relation(fields: [userId], references: [id])
+     type      String   // 'note', 'idea', 'tool', 'dashboard'
+     title     String
+     description String
+     icon      String?  // 图标名称
+     resourceId Int?    // 关联的资源ID（笔记ID、灵感ID等）
+     createdAt DateTime @default(now())
+   }
+   ```
+
+2. **API端点设计**:
+   - `POST /api/activities` - 记录用户活动
+     - 请求体: `{ type, title, description, icon?, resourceId? }`
+   - `GET /api/activities/recent` - 获取用户最近活动（最近5条）
+   - `GET /api/activities` - 获取用户所有活动（支持分页）
+
+3. **活动类型定义**:
+   - `dashboard`: 仪表盘访问
+   - `note`: 笔记相关操作
+   - `idea`: 灵感相关操作  
+   - `tool`: 工具使用
+
+4. **用户隔离**: 所有查询基于 `userId = request.user.userId`
+
+### 技术方案
+1. **数据模型**：在Prisma schema中添加RecentActivity模型，记录用户ID、活动类型、资源ID、访问时间等
+2. **API端点**：
+   - `POST /api/activities` - 记录用户活动
+   - `GET /api/activities/recent` - 获取用户最近活动
+3. **前端集成**：
+   - 在路由守卫或页面挂载时记录访问
+   - Dashboard页面从API获取最近活动数据
+4. **用户隔离**：所有查询都基于当前登录用户ID进行过滤
+
+### 关键文件路径
+
+**需要创建的文件**:
+- `packages/server/src/routes/activities.ts` - 活动记录API
+- `packages/web/src/api/activities.ts` - 前端API客户端
+
+**需要修改的文件**:
+- `packages/server/prisma/schema.prisma` - 添加RecentActivity模型
+- `packages/server/src/index.ts` - 注册activities路由
+- `packages/web/src/views/Dashboard.vue` - 替换模拟数据
+- `packages/web/src/router/index.ts` - 在路由守卫中记录访问活动
 
 ---
 

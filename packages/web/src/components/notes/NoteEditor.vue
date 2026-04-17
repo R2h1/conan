@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { marked } from 'marked';
 import hljs from 'highlight.js';
 import { createNote, updateNote, deleteNote, getRelatedNotes, type Note, type RelatedNote } from '@/api/notes';

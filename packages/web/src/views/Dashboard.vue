@@ -79,6 +79,7 @@ import { useRouter } from 'vue-router';
 import { useToast } from '@/components/ui/toast';
 import { getStats } from '@/api/stats';
 import { createNote } from '@/api/notes';
+import { getRecentActivities } from '@/api/activities';
 import {
   BookOpen,
   Lightbulb,
@@ -87,6 +88,7 @@ import {
   FilePlus,
   Sparkles,
   Save,
+  LayoutDashboard,
 } from 'lucide-vue-next';
 import StatCard from '@/components/dashboard/StatCard.vue';
 import QuickActions from '@/components/dashboard/QuickActions.vue';
@@ -143,43 +145,61 @@ const quickActions = [
   },
 ];
 
-// 最近访问（模拟数据）
-const recentItems = ref([
-  {
-    id: '1',
-    title: 'Vue 3 组合式 API 笔记',
-    description: '知识库 • 2 小时前',
-    icon: BookOpen,
-    time: '2 小时前',
-  },
-  {
-    id: '2',
-    title: '项目灵感收集',
-    description: '灵感箱 • 昨天',
-    icon: Lightbulb,
-    time: '1 天前',
-  },
-  {
-    id: '3',
-    title: 'JSON 格式化',
-    description: '工具集 • 2 天前',
-    icon: Wrench,
-    time: '2 天前',
-  },
-]);
+// 最近访问（从API获取）
+const recentItems = ref<Array<{
+  id: string;
+  title: string;
+  description: string;
+  icon: any;
+  time: string;
+  type: string;
+}>>([]);
+
+// 加载最近访问记录
+const loadRecentActivities = async () => {
+  try {
+    const activities = await getRecentActivities();
+    recentItems.value = activities.map(activity => ({
+      id: activity.id,
+      title: activity.title,
+      description: activity.description,
+      icon: getIconForActivity(activity.type),
+      time: activity.time,
+      type: activity.type,
+    }));
+  } catch (error) {
+    console.error('Failed to load recent activities:', error);
+    // 如果API失败，使用空数组而不是模拟数据
+    recentItems.value = [];
+  }
+};
+
+// 根据活动类型获取图标组件
+const getIconForActivity = (type: string) => {
+  const iconMap: Record<string, any> = {
+    dashboard: LayoutDashboard,
+    note: BookOpen,
+    idea: Lightbulb,
+    tool: Wrench,
+  };
+  return iconMap[type] || BookOpen;
+};
 
 // 快速记录
 const quickNote = ref('');
 const quickTags = ref('');
 
 const handleRecentClick = (item: typeof recentItems.value[0]) => {
-  // 根据类型跳转到对应页面
-  if (item.description.includes('知识库')) {
+  // 根据活动类型跳转到对应页面
+  if (item.type === 'note' || item.description.includes('知识库')) {
     router.push('/app/notes');
-  } else if (item.description.includes('灵感箱')) {
+  } else if (item.type === 'idea' || item.description.includes('灵感箱')) {
     router.push('/app/ideas');
-  } else if (item.description.includes('工具集')) {
+  } else if (item.type === 'tool' || item.description.includes('工具集')) {
     router.push('/app/tools');
+  } else if (item.type === 'dashboard') {
+    // 已经在仪表盘页面
+    router.push('/app');
   }
 };
 
@@ -210,5 +230,6 @@ const handleQuickSave = async () => {
 
 onMounted(() => {
   loadStats();
+  loadRecentActivities();
 });
 </script>

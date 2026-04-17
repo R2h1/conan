@@ -25,6 +25,15 @@
           </RouterLink>
         </div>
         <div class="flex items-center gap-2">
+          <!-- 主题设置按钮 -->
+          <Button
+            variant="ghost"
+            size="icon"
+            @click="themeSettingsOpen = true"
+            title="主题设置"
+          >
+            <Palette class="h-5 w-5" />
+          </Button>
           <ThemeToggle />
           <!-- 用户信息和退出 -->
           <div v-if="authStore.isAuthenticated" class="flex items-center gap-2 ml-2">
@@ -58,7 +67,7 @@
                       as-child
                     >
                       <RouterLink
-                        :to="item.path"
+                        :to="'/app' + item.path"
                         class="flex items-center gap-2"
                       >
                         <component :is="item.icon" class="h-5 w-5 shrink-0" />
@@ -123,6 +132,15 @@
         </SheetContent>
       </Sheet>
 
+      <!-- 主题设置 Sheet -->
+      <Sheet v-model:open="themeSettingsOpen">
+        <SheetContent side="right" class="w-full sm:w-96 p-0">
+          <div class="h-full overflow-y-auto">
+            <ThemeSelector />
+          </div>
+        </SheetContent>
+      </Sheet>
+
       <!-- 主内容区 -->
       <main class="flex-1 p-4 md:p-6">
         <RouterView v-slot="{ Component }">
@@ -146,6 +164,7 @@ import {
   Wrench,
   BookOpen,
   Lightbulb,
+  Palette,
 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -156,10 +175,12 @@ import {
   TooltipContent,
 } from '@/components/ui/tooltip';
 import ThemeToggle from '@/components/theme-toggle.vue';
+import ThemeSelector from '@/components/theme/ThemeSelector.vue';
 import { useAuthStore } from '@/stores/auth';
 
 const sidebarCollapsed = ref(false);
 const mobileMenuOpen = ref(false);
+const themeSettingsOpen = ref(false);
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -180,7 +201,7 @@ const handleLogout = async () => {
 };
 
 const navItems = [
-  { name: '仪表盘', path: '/', icon: LayoutDashboard },
+  { name: '仪表盘', path: '', icon: LayoutDashboard },
   { name: '工具集', path: '/tools', icon: Wrench },
   { name: '知识库', path: '/notes', icon: BookOpen },
   { name: '灵感箱', path: '/ideas', icon: Lightbulb },

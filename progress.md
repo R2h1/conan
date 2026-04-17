@@ -729,3 +729,177 @@ feat: 添加笔记关联功能
 - ✅ 代码已提交到本地仓库
 - ⏳ 等待网络恢复后推送到远程仓库
 - ⏳ MCP 验证生产环境功能（改天进行）
+
+---
+
+## 2026-04-16 会话 - 自定义主题系统
+
+### 目标
+为 Conan 平台添加用户自定义主题功能，允许用户个性化界面颜色。
+
+### 阶段完成情况
+
+#### 阶段 1：设计主题系统架构 ✅
+- 确定主题数据结构、存储方案、应用方式
+- 设计预设主题列表（8个主题）
+- 确定技术方案：Pinia + localStorage + CSS 变量
+
+#### 阶段 2：扩展 CSS 变量系统 ✅
+- 修改 `packages/web/src/styles.css`
+- 添加主题数据属性选择器：`[data-theme="blue"]`, `[data-theme="green"]` 等
+- 支持 8 个预设主题：默认、蓝色、绿色、紫色、橙色、粉红、青色、深色
+- 兼容现有的深色模式（`.dark` 类）
+
+#### 阶段 3：创建主题管理 Store ✅
+- 创建 `packages/web/src/stores/theme.ts`
+- 实现 Theme 接口和预设主题列表
+- 实现 Pinia store 管理主题状态
+- 支持 localStorage 持久化
+- 提供主题切换、深色模式切换、重置等功能
+
+#### 阶段 4：开发主题设置 UI ✅
+- 创建 `packages/web/src/components/theme/ThemeSelector.vue`
+- 主题卡片网格布局，显示颜色预览
+- 深色模式切换按钮
+- 应用主题和重置按钮
+
+#### 阶段 5：集成主题到全局布局 ✅
+- 修改 `packages/web/src/main.ts` - 初始化主题 store
+- 修改 `packages/web/src/layouts/DefaultLayout.vue` - 添加主题设置按钮和 Sheet
+- 顶部栏添加调色板图标按钮，打开主题设置面板
+
+### 关键文件
+
+**创建的文件**:
+- `packages/web/src/stores/theme.ts` - 主题状态管理
+- `packages/web/src/components/theme/ThemeSelector.vue` - 主题选择器组件
+
+**修改的文件**:
+- `packages/web/src/styles.css` - 扩展 CSS 变量系统
+- `packages/web/src/main.ts` - 初始化主题 store
+- `packages/web/src/layouts/DefaultLayout.vue` - 集成主题切换入口
+
+### 功能特性
+1. **8 个预设主题**: 默认、蓝色、绿色、紫色、橙色、粉红、青色、深色
+2. **深色模式支持**: 独立于主题的深色模式切换
+3. **实时预览**: 主题切换立即生效
+4. **持久化存储**: 用户选择保存到 localStorage
+5. **响应式设计**: 移动端友好的主题选择界面
+6. **Toast 反馈**: 操作成功/失败提示
+
+### 使用方法
+1. 点击顶部栏的调色板图标按钮
+2. 在主题设置面板中选择喜欢的主题
+3. 切换深色模式开关
+4. 点击"应用主题"按钮确认更改
+
+### 推迟的功能
+- ⏳ **颜色选择器**: 自定义主题颜色
+- ⏳ **用户配置同步**: 将主题设置同步到后端用户配置
+- ⏳ **系统主题跟随**: 自动跟随操作系统深色/浅色模式
+
+### 下一步
+- ✅ 完成基础实现
+- ⏳ 编译测试和功能验证
+- ⏳ MCP 自动化测试
+- ⏳ 用户反馈收集和优化
+
+---
+
+## 2026-04-17 会话 - 修复最近访问功能bug
+
+### Bug报告
+**问题**: 当不同用户登录时，进入仪表盘页面，最近访问记录没有根据用户隔离，且当前用户的最近访问不会更新
+
+**用户询问**: "是因为什么？功能没做完吗？"
+
+### 初步分析
+1. **前端问题**: `Dashboard.vue` 中的 `recentItems` 是硬编码的模拟数据，没有从API获取
+2. **后端问题**: 没有提供获取用户最近访问记录的API端点
+3. **数据模型**: 缺少记录用户访问活动的数据模型
+4. **记录机制**: 用户访问页面时没有记录到数据库
+
+### 当前状态
+- Dashboard页面使用模拟的最近访问数据
+- 没有用户隔离机制
+- 没有动态更新功能
+
+### 计划行动
+1. 分析现有代码结构
+2. 设计数据模型和API
+3. 实现后端API
+4. 更新前端集成
+5. 测试用户隔离功能
+
+### 阶段1: 分析现有代码和问题 ✅
+1. 检查了 `packages/web/src/views/Dashboard.vue` - 确认 `recentItems` 是硬编码模拟数据
+2. 检查了 `packages/web/src/components/dashboard/RecentActivity.vue` - 只是展示组件
+3. 搜索了后端API - 没有找到最近访问相关端点
+4. 检查了 Prisma schema - 没有RecentActivity模型
+
+### 阶段2: 设计数据模型和API ✅
+1. 设计了RecentActivity数据模型，包含userId、type、title、description、icon、resourceId等字段
+2. 设计了API端点：POST /api/activities, GET /api/activities/recent, GET /api/activities, DELETE /api/activities/:id
+3. 定义了活动类型：dashboard, note, idea, tool
+
+### 阶段3: 实现后端API ✅
+1. 修改了 `packages/server/prisma/schema.prisma` - 添加RecentActivity模型和User模型的关系
+2. 创建了 `packages/server/src/routes/activities.ts` - 实现活动记录API
+3. 更新了 `packages/server/src/index.ts` - 导入并注册activities路由
+4. 运行 `prisma db push` 成功同步数据库schema
+
+### 阶段4: 实现前端API客户端 ✅
+1. 创建了 `packages/web/src/api/activities.ts` - 提供recordActivity、getRecentActivities、recordPageVisit等函数
+2. 实现了页面访问自动记录功能
+
+### 阶段5: 更新Dashboard页面 ✅
+1. 更新了 `packages/web/src/views/Dashboard.vue` - 导入getRecentActivities API
+2. 替换了硬编码的recentItems为从API动态加载
+3. 添加了loadRecentActivities函数和图标映射
+4. 更新了handleRecentClick函数以使用活动类型
+
+### 阶段6: 添加访问记录机制 ✅
+1. 更新了 `packages/web/src/router/index.ts` - 在导航守卫中记录页面访问
+2. 只记录主要页面：/app, /app/notes, /app/ideas, /app/tools
+3. 异步记录，不阻塞页面导航
+
+### 阶段7: 测试与验证 ✅
+1. **TypeScript编译检查**：发现并修复了4个错误
+   - router/index.ts: pageTitle类型问题，已修复
+   - Dashboard.vue: RecentItem接口缺少type属性，已更新RecentActivity.vue
+   - Dashboard.vue: 未使用的ActivityResponse导入，已删除
+   - Dashboard.vue: getIconForActivity中未使用的iconName参数，已简化函数
+2. **重新编译验证**：前端和后端TypeScript编译通过
+3. **项目构建**：`pnpm build` 成功完成，无错误
+4. **功能验证**：代码已完全实现，等待运行时测试
+
+### 修复总结
+**问题**: 当不同用户登录时，仪表盘页面的最近访问记录没有根据用户隔离，且当前用户的最近访问不会更新。
+
+**原因**: 功能未完成。Dashboard.vue使用硬编码的模拟数据，没有后端API支持，缺少数据模型和记录机制。
+
+**解决方案**:
+1. **数据模型**: 添加RecentActivity模型到Prisma schema，关联User模型
+2. **后端API**: 创建活动记录API（记录、获取、删除活动）
+3. **前端API客户端**: 创建activities.ts提供recordActivity、getRecentActivities、recordPageVisit函数
+4. **Dashboard页面**: 替换模拟数据为真实API调用，动态加载用户最近活动
+5. **访问记录机制**: 在路由守卫中自动记录用户页面访问（/app, /app/notes, /app/ideas, /app/tools）
+6. **用户隔离**: 所有查询基于当前登录用户ID，确保不同用户看到不同的最近访问记录
+
+### 技术实现细节
+- **RecentActivity模型**: 包含userId, type, title, description, icon, resourceId, createdAt
+- **活动类型**: dashboard, note, idea, tool
+- **自动记录**: 用户在访问主要页面时自动创建活动记录
+- **实时更新**: Dashboard页面加载时自动从API获取最新活动
+- **类型安全**: 完整的TypeScript类型定义
+
+### 测试结果
+- ✅ TypeScript编译通过
+- ✅ 项目构建成功
+- ✅ 数据库schema已同步
+- ✅ 代码已准备好进行运行时测试
+
+### 下一步
+1. 启动开发服务器 (`pnpm dev`) 测试功能
+2. 使用不同用户登录验证用户隔离
+3. 验证最近访问记录动态更新

@@ -5,6 +5,7 @@ import jwt from '@fastify/jwt';
 import { PrismaClient } from '@prisma/client/index.js';
 import authRoutes from './routes/auth.js';
 import ideaRoutes from './routes/ideas.js';
+import activitiesRoutes from './routes/activities.js';
 import { requireAuth } from './plugins/auth-middleware.js';
 
 const prisma = new PrismaClient();
@@ -54,6 +55,9 @@ fastify.get('/api/stats', async (request, reply) => {
 
 // 注册灵感路由
 fastify.register(ideaRoutes);
+
+// 注册活动记录路由
+fastify.register(activitiesRoutes);
 
 // 获取当前用户信息
 fastify.get('/api/auth/me', async (request, reply) => {

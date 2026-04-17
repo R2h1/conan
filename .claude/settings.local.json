@@ -30,7 +30,10 @@
       "Bash(Stop-Process *)",
       "mcp__chrome-devtools__fill",
       "Bash(npx tsc:*)",
-      "mcp__chrome-devtools__handle_dialog"
+      "mcp__chrome-devtools__handle_dialog",
+      "Bash(pnpm type-check *)",
+      "mcp__chrome-devtools__evaluate_script",
+      "Bash(npx vue-tsc *)"
     ]
   }
 }

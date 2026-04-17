@@ -7,4 +7,12 @@ import './styles.css';
 const app = createApp(App);
 const pinia = createPinia();
 
-app.use(pinia).use(router).mount('#app');
+app.use(pinia).use(router);
+
+// 初始化主题
+import { useThemeStore } from './stores/theme';
+app.mount('#app');
+
+// 在应用挂载后初始化主题
+const themeStore = useThemeStore();
+themeStore.initializeTheme();

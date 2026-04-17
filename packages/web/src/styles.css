@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    /* 主题色 - 使用蓝色系 */
+    /* 主题色 - 使用蓝色系 (默认主题) */
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
     --primary-hover: 221.2 83.2% 48%;
@@ -55,7 +55,51 @@
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   }
 
-  .dark {
+  /* 蓝色主题 (专业风格) */
+  [data-theme="blue"] {
+    --primary: 221.2 83.2% 53.3%;
+    --primary-hover: 221.2 83.2% 48%;
+    --ring: 221.2 83.2% 53.3%;
+  }
+
+  /* 绿色主题 (清新风格) */
+  [data-theme="green"] {
+    --primary: 142.1 76.2% 36.3%;
+    --primary-hover: 142.1 76.2% 31.3%;
+    --ring: 142.1 76.2% 36.3%;
+  }
+
+  /* 紫色主题 (创意风格) */
+  [data-theme="purple"] {
+    --primary: 262.1 83.3% 57.8%;
+    --primary-hover: 262.1 83.3% 52.8%;
+    --ring: 262.1 83.3% 57.8%;
+  }
+
+  /* 橙色主题 (活力风格) */
+  [data-theme="orange"] {
+    --primary: 24.6 95% 53.1%;
+    --primary-hover: 24.6 95% 48.1%;
+    --ring: 24.6 95% 53.1%;
+  }
+
+  /* 粉红色主题 (浪漫风格) */
+  [data-theme="pink"] {
+    --primary: 346.8 77.2% 49.8%;
+    --primary-hover: 346.8 77.2% 44.8%;
+    --ring: 346.8 77.2% 49.8%;
+  }
+
+  /* 青色主题 (科技风格) */
+  [data-theme="cyan"] {
+    --primary: 188.7 94.5% 42.7%;
+    --primary-hover: 188.7 94.5% 37.7%;
+    --ring: 188.7 94.5% 42.7%;
+  }
+
+  /* 深色主题 - 覆盖所有主题的深色版本 */
+  .dark,
+  [data-theme="dark"] {
     /* 基础颜色 - 深色模式 */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
@@ -102,6 +146,44 @@
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.3);
     --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 8px 10px -6px rgb(0 0 0 / 0.3);
+  }
+
+  /* 深色模式下的主题颜色调整 */
+  /* 当有.dark类且data-theme="blue"时 */
+  [data-theme="blue"].dark {
+    --primary: 217.2 91.2% 59.8%;
+    --primary-hover: 217.2 91.2% 54%;
+    --ring: 224.3 76.3% 48%;
+  }
+
+  [data-theme="green"].dark {
+    --primary: 142.1 70.6% 45.3%;
+    --primary-hover: 142.1 70.6% 40.3%;
+    --ring: 142.1 70.6% 45.3%;
+  }
+
+  [data-theme="purple"].dark {
+    --primary: 263.4 70% 50.4%;
+    --primary-hover: 263.4 70% 45.4%;
+    --ring: 263.4 70% 50.4%;
+  }
+
+  [data-theme="orange"].dark {
+    --primary: 20.5 90.2% 48.2%;
+    --primary-hover: 20.5 90.2% 43.2%;
+    --ring: 20.5 90.2% 48.2%;
+  }
+
+  [data-theme="pink"].dark {
+    --primary: 330.4 81.2% 60.4%;
+    --primary-hover: 330.4 81.2% 55.4%;
+    --ring: 330.4 81.2% 60.4%;
+  }
+
+  [data-theme="cyan"].dark {
+    --primary: 188.7 85.9% 53.3%;
+    --primary-hover: 188.7 85.9% 48.3%;
+    --ring: 188.7 85.9% 53.3%;
   }
 }
 
