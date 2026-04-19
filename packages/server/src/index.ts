@@ -80,12 +80,12 @@ fastify.get('/api/auth/me', async (request, reply) => {
   }
 });
 
-// 获取所有笔记（支持搜索和标签筛选）- 需要认证
+// 获取所有笔记（支持搜索、标签筛选和收藏筛选）- 需要认证
 fastify.get('/api/notes', async (request, reply) => {
   await requireAuth(request, reply);
 
   const user: any = request.user;
-  const { search, tag } = request.query as { search?: string; tag?: string };
+  const { search, tag, favorite } = request.query as { search?: string; tag?: string; favorite?: string };
 
   const where: any = { userId: user.userId };
   if (search) {
@@ -96,6 +96,9 @@ fastify.get('/api/notes', async (request, reply) => {
   }
   if (tag) {
     where.tags = { contains: tag };
+  }
+  if (favorite !== undefined) {
+    where.isFavorite = favorite === 'true';
   }
   const notes = await prisma.note.findMany({
     where,
@@ -255,6 +258,37 @@ fastify.delete('/api/notes/:id', async (request, reply) => {
 
   await prisma.note.delete({ where: { id: Number(id) } });
   return { success: true };
+});
+
+// 切换笔记收藏状态 - 需要认证
+fastify.patch('/api/notes/:id/favorite', async (request, reply) => {
+  await requireAuth(request, reply);
+
+  const user: any = request.user;
+  const { id } = request.params as { id: string };
+  const { favorite } = request.body as { favorite?: boolean };
+
+  // 验证笔记属于当前用户
+  const existingNote = await prisma.note.findFirst({
+    where: { id: Number(id), userId: user.userId },
+  });
+
+  if (!existingNote) {
+    return reply.status(404).send({ error: '笔记不存在' });
+  }
+
+  // 如果未提供favorite参数，则切换当前状态
+  const newFavorite = favorite !== undefined ? favorite : !existingNote.isFavorite;
+
+  const note = await prisma.note.update({
+    where: { id: Number(id) },
+    data: {
+      isFavorite: newFavorite,
+      updatedAt: new Date(),
+    },
+  });
+
+  return { ...note, tags: note.tags ? note.tags.split(',') : [] };
 });
 
 const start = async () => {

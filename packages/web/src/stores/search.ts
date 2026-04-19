@@ -11,6 +11,7 @@ export interface SearchResult {
   description: string;
   icon?: string;
   url: string;
+  isFavorite?: boolean; // 仅对笔记有效
   data?: any; // 原始数据，用于跳转等
 }
 
@@ -138,6 +139,7 @@ export const useSearchStore = defineStore('search', () => {
           description: note.content.slice(0, 80) + (note.content.length > 80 ? '...' : ''),
           icon: 'file-text',
           url: `/app/notes?note=${note.id}`,
+          isFavorite: note.isFavorite,
           data: note,
         });
       });

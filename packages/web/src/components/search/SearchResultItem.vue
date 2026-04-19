@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useSearchStore, type SearchResult } from '@/stores/search';
-import { FileText, Lightbulb, Wrench, ExternalLink } from 'lucide-vue-next';
+import { FileText, Lightbulb, Wrench, ExternalLink, Star } from 'lucide-vue-next';
 
 interface Props {
   result: SearchResult;
@@ -80,6 +80,10 @@ const emit = defineEmits<{
         <div class="font-medium truncate" v-html="result.title" />
         <div class="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
           {{ typeLabel }}
+        </div>
+        <!-- 收藏标记 -->
+        <div v-if="result.type === 'note' && result.isFavorite" class="text-yellow-500">
+          <Star class="h-3 w-3 fill-current" />
         </div>
       </div>
       <div class="text-sm text-muted-foreground truncate mt-1">

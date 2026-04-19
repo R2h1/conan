@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { X, Save, Trash2, Link } from 'lucide-vue-next';
+import FavoriteButton from './FavoriteButton.vue';
 import 'highlight.js/styles/github-dark.css';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,6 +30,7 @@ const emit = defineEmits<{
   (e: 'saved'): void;
   (e: 'deleted'): void;
   (e: 'select', note: RelatedNote): void;
+  (e: 'favorite-updated', isFavorite: boolean): void;
 }>();
 
 const { toast } = useToast();
@@ -143,6 +145,10 @@ const deleteCurrentNote = async () => {
   }
 };
 
+const handleFavoriteUpdate = async (isFavorite: boolean) => {
+  emit('favorite-updated', isFavorite);
+};
+
 const previewHtml = computed(() => marked.parse(content.value));
 </script>
 
@@ -162,6 +168,12 @@ const previewHtml = computed(() => marked.parse(content.value));
       >
         <Save class="h-4 w-4 mr-1" /> 保存
       </Button>
+      <FavoriteButton
+        v-if="note"
+        :note-id="note.id"
+        :is-favorite="note.isFavorite"
+        @update="handleFavoriteUpdate"
+      />
       <Button
         variant="destructive"
         size="sm"

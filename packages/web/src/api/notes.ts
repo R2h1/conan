@@ -11,12 +11,13 @@ export interface Note {
   title: string;
   content: string;
   tags: string[];
+  isFavorite: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-// 获取笔记列表（支持搜索和标签筛选）
-export const getNotes = async (params?: { search?: string; tag?: string }) => {
+// 获取笔记列表（支持搜索、标签筛选和收藏筛选）
+export const getNotes = async (params?: { search?: string; tag?: string; favorite?: boolean }) => {
   const response = await api.get<Note[]>('/api/notes', { params });
   return response.data;
 };
@@ -60,4 +61,15 @@ export interface RelatedNote extends Note {
 export const getRelatedNotes = async (id: number): Promise<RelatedNote[]> => {
   const response = await api.get<RelatedNote[]>(`/api/notes/${id}/related`);
   return response.data;
+};
+
+// 切换笔记收藏状态
+export const toggleFavorite = async (id: number, favorite?: boolean): Promise<Note> => {
+  const response = await api.patch<Note>(`/api/notes/${id}/favorite`, { favorite });
+  return response.data;
+};
+
+// 获取收藏笔记（辅助函数）
+export const getFavoriteNotes = async (): Promise<Note[]> => {
+  return getNotes({ favorite: true });
 };
