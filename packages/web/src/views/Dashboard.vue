@@ -33,6 +33,29 @@
       />
     </div>
 
+    <!-- 标签云 -->
+    <div v-if="popularTags.length" class="card p-6">
+      <h3 class="text-lg font-semibold mb-4">热门标签</h3>
+      <TagCloud
+        :tags="popularTags"
+        :max-font-size="24"
+        :min-font-size="12"
+        color-scheme="frequency"
+        @click="handleTagClick"
+      />
+      <div class="mt-4 text-sm text-muted-foreground flex justify-between items-center">
+        <span>点击标签查看相关内容</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          class="text-xs"
+          @click="router.push('/app/tags')"
+        >
+          查看全部标签
+        </Button>
+      </div>
+    </div>
+
     <!-- 快捷操作 -->
     <div>
       <h3 class="text-xl font-semibold mb-4">快捷操作</h3>
@@ -80,6 +103,8 @@ import { useToast } from '@/components/ui/toast';
 import { getStats } from '@/api/stats';
 import { createNote } from '@/api/notes';
 import { getRecentActivities } from '@/api/activities';
+import { getPopularTags } from '@/api/tags';
+import type { TagCloudItem } from '@/api/tags';
 import {
   BookOpen,
   Lightbulb,
@@ -93,6 +118,7 @@ import {
 import StatCard from '@/components/dashboard/StatCard.vue';
 import QuickActions from '@/components/dashboard/QuickActions.vue';
 import RecentActivity from '@/components/dashboard/RecentActivity.vue';
+import TagCloud from '@/components/tags/TagCloud.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -120,6 +146,19 @@ const loadStats = async () => {
     };
   } catch (error) {
     console.error('Failed to load stats:', error);
+  }
+};
+
+// 热门标签
+const popularTags = ref<TagCloudItem[]>([]);
+
+// 加载热门标签
+const loadPopularTags = async () => {
+  try {
+    const tags = await getPopularTags();
+    popularTags.value = tags;
+  } catch (error) {
+    console.error('Failed to load popular tags:', error);
   }
 };
 
@@ -189,6 +228,16 @@ const getIconForActivity = (type: string) => {
 const quickNote = ref('');
 const quickTags = ref('');
 
+// 标签点击处理
+const handleTagClick = (tag: TagCloudItem) => {
+  // 根据标签类型跳转到对应页面
+  if (tag.type === 'note' || tag.type === 'both') {
+    router.push(`/app/notes?tag=${encodeURIComponent(tag.name)}`);
+  } else if (tag.type === 'idea') {
+    router.push(`/app/ideas?tag=${encodeURIComponent(tag.name)}`);
+  }
+};
+
 const handleRecentClick = (item: typeof recentItems.value[0]) => {
   // 根据活动类型跳转到对应页面
   if (item.type === 'note' || item.description.includes('知识库')) {
@@ -230,6 +279,7 @@ const handleQuickSave = async () => {
 
 onMounted(() => {
   loadStats();
+  loadPopularTags();
   loadRecentActivities();
 });
 </script>

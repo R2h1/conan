@@ -291,6 +291,77 @@ fastify.patch('/api/notes/:id/favorite', async (request, reply) => {
   return { ...note, tags: note.tags ? note.tags.split(',') : [] };
 });
 
+// 获取标签云数据 - 需要认证
+fastify.get('/api/tags/cloud', async (request, reply) => {
+  await requireAuth(request, reply);
+
+  const user: any = request.user;
+  const query = request.query as { limit?: string; minCount?: string };
+
+  // 解析查询参数，确保为数字
+  const limit = query.limit ? Math.max(1, parseInt(query.limit, 10) || 50) : 50;
+  const minCount = query.minCount ? Math.max(1, parseInt(query.minCount, 10) || 1) : 1;
+
+  // 获取当前用户的所有笔记和灵感
+  const [notes, ideas] = await Promise.all([
+    prisma.note.findMany({
+      where: { userId: user.userId },
+      select: { tags: true },
+    }),
+    prisma.idea.findMany({
+      where: { userId: user.userId },
+      select: { tags: true },
+    }),
+  ]);
+
+  // 统计标签频率
+  const tagStats = new Map<string, { noteCount: number; ideaCount: number; total: number }>();
+
+  // 统计笔记标签
+  notes.forEach(note => {
+    if (note.tags) {
+      const tags = note.tags.split(',').filter(tag => tag.trim() !== '');
+      tags.forEach(tag => {
+        const trimmedTag = tag.trim();
+        const stats = tagStats.get(trimmedTag) || { noteCount: 0, ideaCount: 0, total: 0 };
+        stats.noteCount++;
+        stats.total++;
+        tagStats.set(trimmedTag, stats);
+      });
+    }
+  });
+
+  // 统计灵感标签
+  ideas.forEach(idea => {
+    if (idea.tags) {
+      const tags = idea.tags.split(',').filter(tag => tag.trim() !== '');
+      tags.forEach(tag => {
+        const trimmedTag = tag.trim();
+        const stats = tagStats.get(trimmedTag) || { noteCount: 0, ideaCount: 0, total: 0 };
+        stats.ideaCount++;
+        stats.total++;
+        tagStats.set(trimmedTag, stats);
+      });
+    }
+  });
+
+  // 转换为数组并排序
+  const tagsArray = Array.from(tagStats.entries())
+    .map(([name, stats]) => ({
+      name,
+      count: stats.total,
+      noteCount: stats.noteCount,
+      ideaCount: stats.ideaCount,
+      type: (stats.noteCount > 0 && stats.ideaCount > 0) ? 'both' :
+            (stats.noteCount > 0) ? 'note' : 'idea',
+    }))
+    .filter(tag => tag.count >= minCount)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+
+  return { tags: tagsArray };
+});
+
 const start = async () => {
   try {
     await fastify.listen({ port: 3000, host: '0.0.0.0' });

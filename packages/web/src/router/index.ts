@@ -57,6 +57,12 @@ const router = createRouter({
           component: () => import('../views/Ideas.vue'),
           meta: { title: '灵感箱' },
         },
+        {
+          path: 'tags',
+          name: 'tags',
+          component: () => import('../views/Tags.vue'),
+          meta: { title: '标签云' },
+        },
       ],
     },
     // 重定向：访问旧路径 /tools 等自动转到 /app/tools
@@ -99,7 +105,7 @@ router.beforeEach(async (to) => {
     const { recordPageVisit } = activitiesModule;
 
     // 只记录主要页面访问
-    const pagePaths = ['/app', '/app/notes', '/app/ideas', '/app/tools'];
+    const pagePaths = ['/app', '/app/notes', '/app/ideas', '/app/tools', '/app/tags'];
     if (pagePaths.includes(to.path)) {
       recordPageVisit(to.path, String(pageTitle));
     }
