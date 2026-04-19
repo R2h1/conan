@@ -23,6 +23,23 @@
           >
             Conan
           </RouterLink>
+          <!-- 搜索按钮 -->
+          <button
+            @click="openSearch"
+            title="搜索 (Ctrl+K)"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-background hover:bg-accent/50 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
+            <Search class="h-4 w-4" />
+            <span>搜索</span>
+            <span class="flex items-center gap-0.5 ml-2 text-xs opacity-60">
+              <kbd class="px-1.5 py-0.5 bg-accent rounded border text-[10px]"
+                >Ctrl</kbd
+              >
+              <kbd class="px-1.5 py-0.5 bg-accent rounded border text-[10px]"
+                >K</kbd
+              >
+            </span>
+          </button>
         </div>
         <div class="flex items-center gap-2">
           <!-- 主题设置按钮 -->
@@ -36,7 +53,10 @@
           </Button>
           <ThemeToggle />
           <!-- 用户信息和退出 -->
-          <div v-if="authStore.isAuthenticated" class="flex items-center gap-2 ml-2">
+          <div
+            v-if="authStore.isAuthenticated"
+            class="flex items-center gap-2 ml-2"
+          >
             <span class="text-sm text-muted-foreground hidden md:inline-block">
               {{ authStore.user?.name }}
             </span>
@@ -165,6 +185,7 @@ import {
   BookOpen,
   Lightbulb,
   Palette,
+  Search,
 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -177,6 +198,7 @@ import {
 import ThemeToggle from '@/components/theme-toggle.vue';
 import ThemeSelector from '@/components/theme/ThemeSelector.vue';
 import { useAuthStore } from '@/stores/auth';
+import { useSearchStore } from '@/stores/search';
 
 const sidebarCollapsed = ref(false);
 const mobileMenuOpen = ref(false);
@@ -198,6 +220,12 @@ onMounted(async () => {
 const handleLogout = async () => {
   await authStore.logout();
   router.push('/login');
+};
+
+// 搜索功能
+const searchStore = useSearchStore();
+const openSearch = () => {
+  searchStore.openSearch();
 };
 
 const navItems = [

@@ -24,6 +24,7 @@ export interface GetIdeasParams {
   completed?: boolean;
   tag?: string;
   sort?: 'newest' | 'oldest' | 'priority';
+  search?: string;
 }
 
 // 获取灵感列表（支持筛选和排序）

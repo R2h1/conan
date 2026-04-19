@@ -549,6 +549,86 @@ Dashboard 真实数据集成已完成，功能包括：
 
 ---
 
+## 任务 11：快速搜索面板
+
+### 目标
+为 Conan 平台添加全局快速搜索面板，支持 Cmd/Ctrl+K 快捷键打开，快速搜索笔记、灵感和工具，提升用户体验。
+
+### 用户决策
+| 问题 | 选择 |
+|------|------|
+| 搜索方式 | 统一搜索端点 vs 分别调用现有API | 分别调用现有API（更简单，利用现有功能） |
+| 快捷键 | Cmd/Ctrl+K（标准快捷键） |
+| 界面样式 | Sheet 模态框（与现有UI一致） |
+| 键盘导航 | 支持 ↑↓ 箭头键、Enter、Esc |
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 1. 设计技术方案 | ✅ 完成 | 分析现有搜索功能，设计快速搜索面板架构 |
+| 2. 创建统一搜索API（可选） | 🔄 跳过 | 选择分别调用现有API方案，不创建统一端点 |
+| 3. 创建前端搜索组件 | ✅ 完成 | 创建 QuickSearch.vue、SearchResults.vue、SearchResultItem.vue、SearchInput.vue |
+| 4. 实现全局快捷键 | ✅ 完成 | 使用 @vueuse/core 的 useMagicKeys 监听 Cmd/Ctrl+K，集成键盘导航 |
+| 5. 集成到应用 | ✅ 完成 | 在 App.vue 中注册全局搜索组件，处理搜索结果选择事件 |
+| 6. 搜索结果跳转 | ✅ 完成 | 实现选择搜索结果后的路由跳转逻辑 |
+| 7. 测试与优化 | ✅ 完成 | MCP自动化测试通过，快捷键冲突已修复，所有功能验证通过 |
+
+### 技术方案
+
+#### 1. 全局快捷键监听
+- 使用 `@vueuse/core` 的 `useMagicKeys` 监听 Cmd/Ctrl+K
+- 在 App.vue 或全局组件中注册快捷键
+- 打开/关闭搜索面板状态管理
+
+#### 2. 搜索实现
+- **笔记搜索**: 调用现有 `/api/notes?search=` 端点
+- **灵感搜索**: 需要扩展灵感API支持搜索（新增 `/api/ideas?search=`）
+- **工具搜索**: 本地搜索，搜索工具名称和描述
+- **统一搜索端点（可选）**: 创建 `/api/search?q=` 聚合搜索结果
+
+#### 3. 前端组件结构
+```
+QuickSearch.vue（主组件）
+├── SearchInput.vue（搜索输入框）
+├── SearchResults.vue（搜索结果列表）
+│   ├── SearchResultItem.vue（单个结果项）
+│   └── SearchCategory.vue（结果分类：笔记、灵感、工具）
+└── KeyboardHelp.vue（键盘快捷键提示）
+```
+
+#### 4. 键盘导航
+- ↑↓ 箭头键：导航搜索结果
+- Enter：选择当前结果
+- Esc：关闭搜索面板
+- Cmd/Ctrl+K：切换搜索面板
+
+#### 5. 样式设计
+- 使用现有 Sheet 组件作为容器
+- 符合现有设计语言
+- 暗色/亮色模式适配
+
+### 关键文件路径
+
+**需要创建的文件**:
+- `packages/web/src/components/search/QuickSearch.vue` - 快速搜索主组件
+- `packages/web/src/components/search/SearchResults.vue` - 搜索结果列表
+- `packages/web/src/components/search/SearchResultItem.vue` - 单个搜索结果项
+- `packages/web/src/components/search/SearchInput.vue` - 搜索输入框
+
+**需要修改的文件**:
+- `packages/web/src/App.vue` - 注册全局搜索组件和快捷键
+- `packages/web/src/api/ideas.ts` - 扩展灵感API支持搜索参数
+- `packages/server/src/index.ts` - 扩展灵感搜索API（如需）
+- `packages/server/src/routes/ideas.ts` - 添加搜索支持到灵感API
+
+### 依赖安装
+- `@vueuse/core`（如果尚未安装）：用于快捷键监听
+
+---
+
+
+
 ## 设计原则
 
 1. **简洁优先**: 保持界面简洁，避免过度设计

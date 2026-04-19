@@ -7,7 +7,7 @@
         :key="tab.id"
         variant="ghost"
         :class="activeTab === tab.id ? 'border-b-2 border-primary rounded-t' : ''"
-        @click="activeTab = tab.id"
+        @click="changeTab(tab.id)"
       >
         <component :is="tab.icon" class="h-4 w-4 mr-2" />
         {{ tab.label }}
@@ -381,7 +381,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import {
   Code,
   Clock,
@@ -407,6 +408,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 const { toast } = useToast();
+const route = useRoute();
+const router = useRouter();
 
 const tabs = [
   { id: 'json', label: 'JSON 工具', icon: Code },
@@ -420,6 +423,34 @@ const tabs = [
 ];
 
 const activeTab = ref('json');
+
+// 从URL查询参数初始化活动标签页
+const initTabFromUrl = () => {
+  const tabFromUrl = route.query.tab as string;
+  if (tabFromUrl && tabs.some(tab => tab.id === tabFromUrl)) {
+    activeTab.value = tabFromUrl;
+  }
+};
+
+// 组件挂载时初始化
+onMounted(() => {
+  initTabFromUrl();
+});
+
+// 监听路由变化
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && tabs.some(tab => tab.id === newTab)) {
+    activeTab.value = newTab as string;
+  }
+});
+
+// 标签页切换时更新URL
+const changeTab = (tabId: string) => {
+  activeTab.value = tabId;
+  router.push({
+    query: { ...route.query, tab: tabId }
+  });
+};
 
 // JSON 工具
 const jsonInput = ref('');

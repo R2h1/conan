@@ -25,6 +25,7 @@ export default async function ideaRoutes(fastify: FastifyInstance) {
       completed?: string;
       tag?: string;
       sort?: string;
+      search?: string;
     };
 
     const where: any = { userId: user.userId };
@@ -41,6 +42,12 @@ export default async function ideaRoutes(fastify: FastifyInstance) {
     }
     if (query.tag) {
       where.tags = { contains: query.tag };
+    }
+    if (query.search) {
+      where.OR = [
+        { title: { contains: query.search } },
+        { content: { contains: query.search } },
+      ];
     }
 
     // 排序
