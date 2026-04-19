@@ -501,3 +501,147 @@ const handleSearchSelect = (result) => {
 
 ### 总结
 快速搜索面板功能已完整实现，具备所有核心功能：全局快捷键、实时搜索、键盘导航、分类显示、智能跳转。代码已就绪，等待运行时测试验证。
+
+---
+
+## 笔记收藏功能技术设计（任务12）
+
+### 背景
+笔记收藏功能是 Conan 平台的知识库增强功能之一，允许用户标记重要笔记，提供快速访问和管理的功能。
+
+### 技术设计
+
+#### 1. 数据模型设计
+**方案选择**: 在现有Note模型中添加 `isFavorite` 布尔字段
+- **优点**: 简单直接，查询高效，无需额外关联表
+- **缺点**: 无法记录收藏时间（当前需求不必要）
+- **实现**: 
+  ```prisma
+  model Note {
+    // 现有字段...
+    isFavorite Boolean @default(false)  // 新增字段
+  }
+  ```
+
+#### 2. 后端API设计
+1. **收藏状态切换端点**:
+   - `PATCH /api/notes/:id/favorite`
+   - 请求体: `{ favorite?: boolean }`（可选，默认toggle）
+   - 返回: 更新后的笔记对象（包含isFavorite字段）
+
+2. **笔记列表筛选扩展**:
+   - 扩展 `GET /api/notes` 支持 `favorite` 查询参数
+   - `?favorite=true` - 只返回收藏笔记
+   - `?favorite=false` - 只返回未收藏笔记
+   - 无参数 - 返回所有笔记（默认行为）
+
+3. **现有API兼容性**:
+   - 所有笔记API响应中包含 `isFavorite` 字段
+   - 确保现有前端代码无需修改即可工作
+
+#### 3. 前端架构设计
+
+**API客户端扩展** (`packages/web/src/api/notes.ts`):
+```typescript
+// 扩展Note接口
+export interface Note {
+  // 现有字段...
+  isFavorite: boolean;  // 新增字段
+}
+
+// 收藏相关函数
+export const toggleFavorite = async (id: number, favorite?: boolean) => {
+  const response = await api.patch<Note>(`/api/notes/${id}/favorite`, { favorite });
+  return response.data;
+};
+
+export const getFavoriteNotes = async () => {
+  return getNotes({ favorite: true });
+};
+```
+
+**UI组件设计**:
+1. **FavoriteButton.vue**: 可复用的收藏按钮组件
+   - Props: `modelValue: boolean`, `noteId: number`
+   - Events: `update:modelValue`, `change`
+   - 图标: Star图标（空心/实心）
+   - 交互: 点击切换，Toast反馈
+
+2. **NoteCard集成**: 每个笔记卡片添加收藏按钮
+   - 位置: 卡片右上角或标题旁
+   - 状态: 实时同步，无需刷新列表
+
+3. **NoteEditor集成**: 编辑器头部添加收藏按钮
+   - 位置: 标题栏右侧
+   - 功能: 切换当前编辑笔记的收藏状态
+
+4. **Notes页面扩展**:
+   - 添加收藏筛选标签页（全部/收藏/未收藏）
+   - 收藏标签页显示所有收藏笔记
+   - 支持收藏笔记的批量操作
+
+5. **快速搜索集成**:
+   - 收藏笔记在搜索结果中显示⭐图标
+   - 可考虑搜索结果排序（收藏笔记优先）
+
+#### 4. 用户体验设计
+1. **直观交互**: 星形图标表示收藏状态
+2. **即时反馈**: 点击后图标立即变化，Toast提示
+3. **多入口操作**: 支持在列表、编辑器、搜索结果中收藏
+4. **快速访问**: 收藏标签页提供一键访问所有收藏笔记
+5. **视觉区分**: 收藏笔记在列表中有视觉标记（如金色边框）
+
+#### 5. 技术实现细节
+
+**后端实现要点**:
+- 修改Prisma Schema，运行 `prisma db push`
+- 在 `packages/server/src/index.ts` 添加收藏端点
+- 确保用户隔离（只允许用户操作自己的笔记）
+- 记录收藏操作到RecentActivity（可选）
+
+**前端实现要点**:
+- 扩展Note接口，更新相关类型定义
+- 创建FavoriteButton组件，使用lucide-vue-next的Star图标
+- 更新NoteCard、NoteEditor、Notes.vue组件
+- 添加收藏筛选逻辑和UI
+
+**状态管理**:
+- 使用现有Pinia store（notes或新增favorites store）
+- 保持本地状态与服务器同步
+- 处理乐观更新（先更新UI，后同步服务器）
+
+#### 6. 文件变更清单
+
+**需要修改的文件**:
+1. `packages/server/prisma/schema.prisma` - 添加isFavorite字段
+2. `packages/server/src/index.ts` - 添加收藏端点
+3. `packages/web/src/api/notes.ts` - 扩展API客户端
+4. `packages/web/src/components/notes/NoteCard.vue` - 添加收藏按钮
+5. `packages/web/src/components/notes/NoteEditor.vue` - 添加收藏按钮
+6. `packages/web/src/views/Notes.vue` - 添加收藏标签页
+7. `packages/web/src/components/search/SearchResultItem.vue` - 收藏标记
+
+**可能需要创建的文件**:
+1. `packages/web/src/components/notes/FavoriteButton.vue` - 收藏按钮组件
+2. `packages/web/src/components/notes/FavoriteFilter.vue` - 收藏筛选组件
+
+#### 7. 测试计划
+1. **单元测试**: API端点、收藏逻辑、组件交互
+2. **集成测试**: 前后端数据同步、用户隔离
+3. **用户测试**: 收藏操作流程、UI反馈
+4. **MCP自动化测试**: 完整功能验证
+
+#### 8. 已知限制与未来扩展
+1. **当前限制**: 无法记录收藏时间，无法添加收藏标签
+2. **未来扩展**: 
+   - 添加收藏时间戳
+   - 支持收藏分类/标签
+   - 收藏导入/导出
+   - 多设备同步优化
+
+### 实现优先级
+1. 核心功能（收藏/取消收藏）✅ 高优先级
+2. 收藏筛选视图✅ 高优先级  
+3. 多入口操作✅ 中优先级
+4. 搜索集成✅ 中优先级
+5. 高级功能（收藏时间、分类）⏳ 低优先级

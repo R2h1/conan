@@ -627,6 +627,109 @@ QuickSearch.vue（主组件）
 
 ---
 
+## 任务 12：笔记收藏功能
+
+### 目标
+为笔记添加收藏功能，允许用户标记重要笔记，提供快速访问收藏笔记的视图。
+
+### 用户决策
+| 问题 | 选择 |
+|------|------|
+| 数据模型 | 在Note模型中添加isFavorite字段（简单直接） |
+| 收藏状态切换 | 独立端点 PATCH /api/notes/:id/favorite |
+| 收藏视图 | 独立的收藏页面 vs 笔记列表筛选 | 笔记列表筛选 + 收藏标签页 |
+| UI位置 | 笔记卡片和编辑器添加收藏按钮 |
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 1. 设计技术方案 | ⏳ 待开始 | 确定数据模型、API设计、UI交互 |
+| 2. 修改Prisma Schema | ⏳ 待开始 | 在Note模型中添加isFavorite布尔字段 |
+| 3. 更新后端API | ⏳ 待开始 | 添加收藏状态切换端点，支持按收藏筛选 |
+| 4. 更新前端API客户端 | ⏳ 待开始 | 添加收藏相关API函数 |
+| 5. 实现收藏UI组件 | ⏳ 待开始 | 创建收藏按钮组件，集成到笔记列表和编辑器 |
+| 6. 添加收藏视图 | ⏳ 待开始 | 在笔记页面添加收藏标签页，显示收藏笔记 |
+| 7. 集成到快速搜索 | ⏳ 待开始 | 收藏笔记在搜索结果中特殊标记或优先显示 |
+| 8. 测试与验证 | ⏳ 待开始 | MCP自动化测试，功能验证 |
+
+### 技术方案
+
+#### 1. 数据模型修改
+- 在Note模型中添加 `isFavorite` 布尔字段，默认 `false`
+- 现有笔记的 `isFavorite` 字段默认为 `false`
+- 不需要创建独立的Favorite模型（简化设计）
+
+#### 2. 后端API扩展
+1. **收藏状态切换**:
+   - `PATCH /api/notes/:id/favorite` - 切换收藏状态
+   - 请求体: `{ favorite: boolean }` 或空（toggle）
+   - 返回更新后的笔记对象
+
+2. **笔记列表筛选**:
+   - 扩展 `GET /api/notes` 支持 `favorite` 查询参数
+   - `?favorite=true` - 只返回收藏的笔记
+   - `?favorite=false` - 只返回未收藏的笔记
+   - 无参数 - 返回所有笔记
+
+3. **现有API兼容性**:
+   - 所有笔记API响应中返回 `isFavorite` 字段
+   - 确保向后兼容
+
+#### 3. 前端实现
+1. **API客户端扩展** (`packages/web/src/api/notes.ts`):
+   - `toggleFavorite(id: number, favorite?: boolean)`
+   - `getFavoriteNotes()` 辅助函数
+
+2. **收藏按钮组件**:
+   - 使用Star或Heart图标
+   - 点击切换收藏状态
+   - 实时反馈（Toast提示）
+
+3. **笔记列表集成**:
+   - 每个笔记卡片添加收藏按钮
+   - 收藏筛选标签页（全部/收藏/未收藏）
+
+4. **笔记编辑器集成**:
+   - 编辑器头部添加收藏按钮
+   - 保存时不影响收藏状态
+
+5. **收藏视图**:
+   - 在笔记页面添加"收藏"标签页
+   - 显示所有收藏笔记
+
+6. **快速搜索集成**:
+   - 收藏笔记在搜索结果中特殊标记（⭐图标）
+   - 可考虑优先显示收藏笔记
+
+### 关键文件路径
+
+**需要修改的文件**:
+- `packages/server/prisma/schema.prisma` - 添加isFavorite字段
+- `packages/server/src/index.ts` - 添加收藏端点
+- `packages/web/src/api/notes.ts` - 扩展API客户端
+- `packages/web/src/components/notes/NoteCard.vue` - 添加收藏按钮
+- `packages/web/src/components/notes/NoteEditor.vue` - 添加收藏按钮
+- `packages/web/src/views/Notes.vue` - 添加收藏标签页和筛选
+- `packages/web/src/components/search/SearchResultItem.vue` - 收藏标记
+
+**可能需要创建的文件**:
+- `packages/web/src/components/notes/FavoriteButton.vue` - 可复用的收藏按钮组件
+
+### 用户体验设计
+1. **直观的收藏交互**: 点击星形图标切换收藏状态
+2. **即时反馈**: 图标状态立即更新，Toast提示操作结果
+3. **多入口**: 支持在列表和编辑器中收藏
+4. **快速访问**: 收藏标签页提供快速访问收藏笔记
+5. **视觉突出**: 收藏笔记在列表中特殊标记
+
+### 默认行为
+- 新笔记默认未收藏
+- 收藏状态与用户绑定（用户隔离）
+- 收藏操作记录到最近访问活动
+
+---
+
 
 
 ## 设计原则
