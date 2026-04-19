@@ -4,8 +4,8 @@ node_modules
 
 /src/generated/prisma
 
-/src/generated/prisma
-
-/src/generated/prisma
-
 /prisma/prisma
+
+# SQLite database files
+dev.db
+*.db
