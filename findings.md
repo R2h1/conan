@@ -988,3 +988,258 @@ interface TagCloudItem {
 1. **性能风险**: 大数据量下标签统计可能慢 → 实施缓存和分页
 2. **可视化风险**: 简单布局可能不够美观 → 提供未来升级路径
 3. **复杂度风险**: 功能可能过度复杂 → 保持核心功能简单，逐步增强
+
+---
+
+## 笔记历史版本功能技术设计（任务14）
+
+### 背景
+笔记历史版本功能是知识库的重要增强功能，为用户提供数据安全性和可追溯性。当用户意外修改或删除重要内容时，可以恢复到之前的版本。
+
+### 当前笔记系统现状
+1. **数据存储**: Note 模型存储当前版本的标题、内容、标签
+2. **版本控制**: 无历史版本功能，覆盖保存后无法恢复
+3. **用户需求**: 用户可能误操作，需要版本恢复功能
+4. **技术基础**: 现有认证系统、用户隔离、数据模型支持扩展
+
+### 技术设计
+
+#### 1. 数据模型设计
+
+**核心模型**: NoteVersion（独立模型，关联 Note）
+```prisma
+model NoteVersion {
+  id          Int      @id @default(autoincrement())
+  noteId      Int
+  note        Note     @relation(fields: [noteId], references: [id])
+  title       String
+  content     String
+  tags        String   // 逗号分隔的标签字符串
+  version     Int      // 版本号，从1开始递增
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([noteId, version])  // 确保每个笔记的版本号唯一
+}
+```
+
+**Note 模型扩展**:
+```prisma
+model Note {
+  // 现有字段...
+  versions        NoteVersion[]  // 关联关系
+  currentVersion  Int @default(1)  // 当前版本号
+}
+```
+
+#### 2. 版本控制策略
+
+**自动版本创建**:
+1. **每次保存时创建**: 用户点击保存按钮时自动创建新版本
+2. **版本号递增**: 每次创建新版本时递增版本号
+3. **完整快照**: 存储完整的笔记内容（标题、内容、标签）
+4. **用户隔离**: 只允许笔记所有者访问历史版本
+
+**手动版本管理**（可选）:
+1. **创建检查点**: 用户手动创建重要版本标记
+2. **版本标签**: 为重要版本添加标签（如"v1.0"、"发布版本"）
+3. **版本描述**: 添加版本变更描述
+
+#### 3. 后端API设计
+
+**核心端点**:
+- `GET /api/notes/:id/versions` - 获取笔记的所有历史版本
+  - 查询参数: `limit`, `offset`, `orderBy` (createdAt, version)
+  - 返回: 版本列表，包含版本号、创建时间、摘要
+
+- `GET /api/notes/:id/versions/:versionId` - 获取特定历史版本
+  - 返回: 完整的版本内容
+
+- `POST /api/notes/:id/versions` - 创建新版本
+  - 请求体: 可选版本描述、标签
+  - 返回: 新创建的版本
+
+- `POST /api/notes/:id/restore` - 恢复到历史版本
+  - 请求体: `{ versionId: number, createNew: boolean }`
+  - `createNew=true`: 创建新版本包含历史内容
+  - `createNew=false`: 直接覆盖当前版本
+  - 返回: 恢复后的笔记
+
+- `DELETE /api/notes/:id/versions/:versionId` - 删除历史版本
+  - 权限: 只允许删除非当前版本
+
+**集成到现有API**:
+- `PATCH /api/notes/:id`: 保存时自动创建新版本
+- `GET /api/notes/:id`: 返回当前版本信息，可选包含版本历史元数据
+
+#### 4. 前端架构设计
+
+**API客户端** (`packages/web/src/api/versions.ts`):
+```typescript
+export interface NoteVersion {
+  id: number;
+  noteId: number;
+  title: string;
+  content: string;
+  tags: string[];
+  version: number;
+  userId: number;
+  createdAt: string;
+  updatedAt: string;
+  description?: string;  // 版本描述（可选）
+}
+
+// 核心函数
+export const getNoteVersions = (noteId: number, params?: GetVersionsParams)
+export const getNoteVersion = (noteId: number, versionId: number)
+export const createVersion = (noteId: number, data?: CreateVersionData)
+export const restoreVersion = (noteId: number, data: RestoreVersionData)
+export const deleteVersion = (noteId: number, versionId: number)
+```
+
+**UI组件设计**:
+1. **VersionHistory.vue**: 历史版本时间线组件
+   - 垂直时间线显示版本历史
+   - 每个版本显示版本号、时间、摘要、操作按钮
+   - 支持版本选择和对比
+
+2. **VersionDiff.vue**: 版本对比组件
+   - 并排显示两个版本的内容差异
+   - 高亮显示文本差异
+   - 支持切换视图（并排、差异视图）
+
+3. **RestoreDialog.vue**: 版本恢复确认对话框
+   - 选择恢复方式（覆盖当前/创建新版本）
+   - 添加恢复描述
+   - 确认操作
+
+**NoteEditor集成**:
+1. **历史版本面板**: 在编辑器侧边或底部添加版本历史面板
+2. **版本切换**: 在编辑器中切换到历史版本查看
+3. **恢复操作**: 一键恢复历史版本
+
+#### 5. 用户体验设计
+
+**版本时间线**:
+- 按时间倒序显示版本历史
+- 每个版本显示: 版本号、时间、内容摘要（前100字符）
+- 当前版本高亮显示
+- 支持展开/折叠详细内容
+
+**版本对比**:
+- 选择两个版本进行对比
+- 并排显示，差异高亮
+- 支持纯文本和富文本对比
+
+**恢复流程**:
+1. 用户选择历史版本
+2. 打开恢复确认对话框
+3. 选择恢复方式（创建新版本/覆盖当前）
+4. 添加恢复描述（可选）
+5. 确认恢复，显示Toast反馈
+
+**性能优化**:
+1. **懒加载历史**: 初始只加载最近5个版本，滚动加载更多
+2. **内容摘要**: 列表只显示摘要，点击才加载完整内容
+3. **差异计算**: 前端轻量级差异算法，后端可选支持
+4. **缓存策略**: 已加载的版本内容缓存
+
+### 技术挑战与解决方案
+
+#### 1. 数据存储增长
+- **挑战**: 历史版本可能大量增加数据库存储
+- **解决方案**:
+  - 可选版本保留策略（按时间/数量限制）
+  - 定期清理旧版本（可配置）
+  - 存储优化（压缩、差异存储）
+
+#### 2. 性能影响
+- **挑战**: 每次保存都创建版本可能影响性能
+- **解决方案**:
+  - 可选版本创建频率（每次保存/手动创建）
+  - 异步创建版本（后台任务）
+  - 批处理版本创建
+
+#### 3. 用户界面复杂度
+- **挑战**: 版本管理界面可能复杂，影响用户体验
+- **解决方案**:
+  - 渐进式披露：默认隐藏版本面板
+  - 简化操作流程
+  - 清晰的视觉层次
+
+#### 4. 数据一致性
+- **挑战**: 版本恢复时确保数据一致性
+- **解决方案**:
+  - 事务处理版本恢复
+  - 版本号一致性检查
+  - 恢复前数据备份
+
+### 实现优先级
+
+#### 第一阶段（核心功能）
+1. ⏳ NoteVersion 数据模型
+2. ⏳ 基础版本API（获取历史、创建版本、恢复）
+3. ⏳ 简单版本时间线组件
+4. ⏳ NoteEditor基本集成
+
+#### 第二阶段（完整功能）
+1. ⏳ 版本对比功能
+2. ⏳ 高级恢复选项
+3. ⏳ 版本筛选和搜索
+4. ⏳ 性能优化
+
+#### 第三阶段（高级功能）
+1. ⏳ 版本标签和描述
+2. ⏳ 版本差异存储优化
+3. ⏳ 批量版本管理
+4. ⏳ 版本导入/导出
+
+### 测试计划
+
+#### 1. 单元测试
+- 版本创建和恢复逻辑
+- 数据模型关系
+- 用户权限验证
+
+#### 2. 集成测试
+- 前后端版本数据流
+- 版本恢复流程
+- 用户隔离功能
+
+#### 3. 性能测试
+- 大量历史版本的加载性能
+- 版本创建对保存性能的影响
+- 内存使用情况
+
+#### 4. 用户体验测试
+- 版本时间线可读性
+- 恢复操作流程
+- 移动端适配性
+
+### 文件清单
+
+#### 需要创建的文件
+1. `packages/web/src/api/versions.ts` - 版本管理API客户端
+2. `packages/web/src/components/notes/VersionHistory.vue` - 历史版本组件
+3. `packages/web/src/components/notes/VersionDiff.vue` - 版本对比组件
+4. `packages/web/src/components/notes/RestoreDialog.vue` - 恢复对话框
+
+#### 需要修改的文件
+1. `packages/server/prisma/schema.prisma` - 添加NoteVersion模型
+2. `packages/server/src/index.ts` - 添加版本管理API
+3. `packages/web/src/components/notes/NoteEditor.vue` - 集成版本面板
+4. `packages/web/src/api/notes.ts` - 扩展笔记保存逻辑
+5. `packages/web/src/stores/notes.ts` - 版本状态管理
+
+### 时间估算
+- **数据模型和API**: 3-4小时
+- **前端组件**: 5-7小时
+- **集成和测试**: 3-4小时
+- **总计**: 11-15小时
+
+### 风险与缓解
+1. **存储风险**: 版本数据快速增长 → 实施版本保留策略
+2. **性能风险**: 影响保存性能 → 异步版本创建、可选功能
+3. **复杂度风险**: 界面过于复杂 → 简化设计、渐进式披露

@@ -15,6 +15,7 @@ model User {
   notes            Note[]
   ideas            Idea[]
   recentActivities RecentActivity[]
+  noteVersions     NoteVersion[]
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 }
@@ -27,6 +28,8 @@ model Note {
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   isFavorite Boolean @default(false)
+  versions      NoteVersion[]
+  currentVersion Int @default(1)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -55,4 +58,20 @@ model RecentActivity {
   icon        String?  // 图标名称（lucide图标）
   resourceId  Int?     // 关联的资源ID（笔记ID、灵感ID等）
   createdAt   DateTime @default(now())
+}
+
+model NoteVersion {
+  id          Int      @id @default(autoincrement())
+  noteId      Int
+  note        Note     @relation(fields: [noteId], references: [id])
+  title       String
+  content     String
+  tags        String   // 逗号分隔的标签字符串
+  version     Int      // 版本号，从1开始递增
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([noteId, version])  // 确保每个笔记的版本号唯一
 }

@@ -28,22 +28,17 @@
         <!-- 标题动画 -->
         <h1
           class="text-4xl md:text-6xl font-bold text-gradient animate-slide-in"
-          style="animation-delay: 0.1s"
         >
           Conan
         </h1>
 
-        <p
-          class="text-xl text-muted-foreground animate-slide-in"
-          style="animation-delay: 0.2s"
-        >
+        <p class="text-xl text-muted-foreground animate-slide-in">
           你的个人数字平台 · 工具集 · 知识库 · 灵感收集
         </p>
 
         <!-- 按钮动画 -->
         <div
           class="flex flex-col sm:flex-row gap-4 justify-center pt-8 animate-slide-in"
-          style="animation-delay: 0.3s"
         >
           <Button size="lg" class="gap-2 group" @click="enterApp">
             进入应用
@@ -76,7 +71,7 @@
         </div>
         <div
           class="card-clickable p-6 animate-slide-in"
-          style="animation-delay: 0.5s"
+          style="animation-delay: 0.4s"
         >
           <div class="inline-block p-3 bg-primary/10 rounded-lg mb-4">
             <BookOpen class="h-10 w-10 text-primary" />
@@ -88,7 +83,7 @@
         </div>
         <div
           class="card-clickable p-6 animate-slide-in"
-          style="animation-delay: 0.6s"
+          style="animation-delay: 0.4s"
         >
           <div class="inline-block p-3 bg-primary/10 rounded-lg mb-4">
             <Lightbulb class="h-10 w-10 text-primary" />

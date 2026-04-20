@@ -186,6 +186,259 @@ fastify.get('/api/notes/:id/related', async (request, reply) => {
   return relatedNotes.sort((a, b) => b.matchScore - a.matchScore);
 });
 
+// 获取笔记历史版本列表 - 需要认证
+fastify.get('/api/notes/:id/versions', async (request, reply) => {
+  await requireAuth(request, reply);
+
+  const user: any = request.user;
+  const { id } = request.params as { id: string };
+
+  // 验证笔记属于当前用户
+  const note = await prisma.note.findFirst({
+    where: { id: Number(id), userId: user.userId },
+  });
+
+  if (!note) {
+    return reply.status(404).send({ error: '笔记不存在' });
+  }
+
+  // 获取笔记的所有历史版本，按版本号降序（最新版本在前）
+  const versions = await prisma.noteVersion.findMany({
+    where: { noteId: Number(id), userId: user.userId },
+    orderBy: { version: 'desc' },
+  });
+
+  // 转换tags为数组
+  return versions.map(v => ({
+    ...v,
+    tags: v.tags ? v.tags.split(',') : [],
+  }));
+});
+
+// 获取特定历史版本 - 需要认证
+fastify.get('/api/notes/:id/versions/:versionId', async (request, reply) => {
+  await requireAuth(request, reply);
+
+  const user: any = request.user;
+  const { id, versionId } = request.params as { id: string; versionId: string };
+
+  // 验证笔记属于当前用户
+  const note = await prisma.note.findFirst({
+    where: { id: Number(id), userId: user.userId },
+  });
+
+  if (!note) {
+    return reply.status(404).send({ error: '笔记不存在' });
+  }
+
+  // 获取特定历史版本
+  const version = await prisma.noteVersion.findFirst({
+    where: {
+      noteId: Number(id),
+      id: Number(versionId),
+      userId: user.userId
+    },
+  });
+
+  if (!version) {
+    return reply.status(404).send({ error: '历史版本不存在' });
+  }
+
+  // 转换tags为数组
+  return {
+    ...version,
+    tags: version.tags ? version.tags.split(',') : [],
+  };
+});
+
+// 创建新历史版本 - 需要认证
+fastify.post('/api/notes/:id/versions', async (request, reply) => {
+  await requireAuth(request, reply);
+
+  const user: any = request.user;
+  const { id } = request.params as { id: string };
+  const { description } = request.body as { description?: string };
+
+  // 验证笔记属于当前用户
+  const note = await prisma.note.findFirst({
+    where: { id: Number(id), userId: user.userId },
+  });
+
+  if (!note) {
+    return reply.status(404).send({ error: '笔记不存在' });
+  }
+
+  // 计算新版本号
+  const latestVersion = await prisma.noteVersion.findFirst({
+    where: { noteId: Number(id) },
+    orderBy: { version: 'desc' },
+    select: { version: true },
+  });
+
+  const newVersion = (latestVersion?.version || 0) + 1;
+
+  // 创建新版本
+  const version = await prisma.noteVersion.create({
+    data: {
+      noteId: Number(id),
+      title: note.title,
+      content: note.content,
+      tags: note.tags,
+      version: newVersion,
+      userId: user.userId,
+    },
+  });
+
+  // 更新笔记的当前版本号
+  await prisma.note.update({
+    where: { id: Number(id) },
+    data: { currentVersion: newVersion },
+  });
+
+  return {
+    ...version,
+    tags: version.tags ? version.tags.split(',') : [],
+  };
+});
+
+// 恢复到历史版本 - 需要认证
+fastify.post('/api/notes/:id/restore', async (request, reply) => {
+  await requireAuth(request, reply);
+
+  const user: any = request.user;
+  const { id } = request.params as { id: string };
+  const { versionId, createNew } = request.body as { versionId: number; createNew?: boolean };
+
+  // 验证笔记属于当前用户
+ const note = await prisma.note.findFirst({
+   where: { id: Number(id), userId: user.userId },
+ });
+
+ if (!note) {
+   return reply.status(404).send({ error: '笔记不存在' });
+ }
+
+ // 获取要恢复的历史版本
+ const version = await prisma.noteVersion.findFirst({
+   where: {
+     noteId: Number(id),
+     id: versionId,
+     userId: user.userId
+   },
+ });
+
+ if (!version) {
+   return reply.status(404).send({ error: '历史版本不存在' });
+ }
+
+ if (createNew) {
+   // 创建新版本，包含历史内容
+   const latestVersion = await prisma.noteVersion.findFirst({
+     where: { noteId: Number(id) },
+     orderBy: {version: 'desc'},
+     select: {version: true},
+   });
+
+   const newVersion = (latestVersion?.version || 0) + 1;
+
+   // 创建新版本（历史内容）
+   const newVersionRecord = await prisma.noteVersion.create({
+     data: {
+       noteId: Number(id),
+       title: version.title,
+       content: version.content,
+       tags: version.tags,
+       version: newVersion,
+       userId: user.userId,
+     },
+   });
+
+   // 更新笔记内容
+   const updatedNote = await prisma.note.update({
+     where: { id: Number(id) },
+     data: {
+       title: version.title,
+       content: version.content,
+       tags: version.tags,
+       currentVersion: newVersion,
+       updatedAt: new Date(),
+     },
+   });
+
+   return {
+     note: {
+       ...updatedNote,
+       tags: updatedNote.tags ? updatedNote.tags.split(',') : [],
+     },
+     version: {
+       ...newVersionRecord,
+       tags: newVersionRecord.tags ? newVersionRecord.tags.split(',') : [],
+     },
+   };
+ } else {
+   // 直接覆盖当前版本
+   const updatedNote = await prisma.note.update({
+     where: { id: Number(id) },
+     data: {
+       title: version.title,
+       content: version.content,
+       tags: version.tags,
+       updatedAt: new Date(),
+     },
+   });
+
+   return {
+     note: {
+       ...updatedNote,
+       tags: updatedNote.tags ? updatedNote.tags.split(',') : [],
+     },
+     version: null,
+   };
+ }
+});
+
+// 删除历史版本 - 需要认证
+fastify.delete('/api/notes/:id/versions/:versionId', async (request, reply) => {
+  await requireAuth(request, reply);
+
+  const user: any = request.user;
+  const { id, versionId } = request.params as { id: string; versionId: string };
+
+  // 验证笔记属于当前用户
+  const note = await prisma.note.findFirst({
+    where: { id: Number(id), userId: user.userId },
+  });
+
+  if (!note) {
+    return reply.status(404).send({ error: '笔记不存在' });
+  }
+
+  // 获取要删除的版本
+  const version = await prisma.noteVersion.findFirst({
+    where: {
+      noteId: Number(id),
+      id: Number(versionId),
+      userId: user.userId
+    },
+  });
+
+  if (!version) {
+    return reply.status(404).send({ error: '历史版本不存在' });
+  }
+
+  // 不能删除当前版本（如果它是当前版本）
+  if (version.version === note.currentVersion) {
+    return reply.status(400).send({ error: '不能删除当前版本' });
+  }
+
+  // 删除版本
+  await prisma.noteVersion.delete({
+    where: { id: Number(versionId) },
+  });
+
+  return { success: true };
+});
+
 // 创建笔记 - 需要认证
 fastify.post('/api/notes', async (request, reply) => {
   await requireAuth(request, reply);

@@ -8,8 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { X, Save, Trash2, Link } from 'lucide-vue-next';
+import { X, Save, Trash2, Link, History } from 'lucide-vue-next';
 import FavoriteButton from './FavoriteButton.vue';
+import VersionHistory from './VersionHistory.vue';
 import 'highlight.js/styles/github-dark.css';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,6 +43,7 @@ const tags = ref<string[]>([]);
 const isSaving = ref(false);
 const relatedNotes = ref<RelatedNote[]>([]);
 const showRelated = ref(false);
+const showVersionHistory = ref(false);
 
 // 加载相关笔记
 const loadRelatedNotes = async () => {
@@ -149,6 +151,10 @@ const handleFavoriteUpdate = async (isFavorite: boolean) => {
   emit('favorite-updated', isFavorite);
 };
 
+const toggleVersionHistory = () => {
+  showVersionHistory.value = !showVersionHistory.value;
+};
+
 const previewHtml = computed(() => marked.parse(content.value));
 </script>
 
@@ -174,6 +180,15 @@ const previewHtml = computed(() => marked.parse(content.value));
         :is-favorite="note.isFavorite"
         @update="handleFavoriteUpdate"
       />
+      <Button
+        v-if="note"
+        variant="outline"
+        size="sm"
+        @click="toggleVersionHistory"
+        :disabled="isSaving"
+      >
+        <History class="h-4 w-4" />
+      </Button>
       <Button
         variant="destructive"
         size="sm"
@@ -229,6 +244,13 @@ const previewHtml = computed(() => marked.parse(content.value));
         </Button>
       </div>
     </div>
+
+    <!-- 版本历史 -->
+    <VersionHistory
+      v-if="showVersionHistory && note"
+      :note-id="note.id"
+      class="p-4 border-b bg-muted/30"
+    />
 
     <div class="flex-1 flex flex-col md:flex-row overflow-hidden">
       <div class="flex-1 border-r p-4 overflow-auto">

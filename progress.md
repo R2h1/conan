@@ -1604,3 +1604,222 @@ const handleKeyDown = (event: KeyboardEvent) => {
 1. 启动开发服务器进行功能测试
 2. 使用MCP进行自动化测试验证
 3. 用户验收测试
+
+---
+
+## 2026-04-20 会话 - 规划笔记历史版本功能（任务14）
+
+### 用户请求
+用户询问"有什么必须要优先做的功能"，根据现有推迟功能和项目重要性，建议优先实现笔记历史版本功能。
+
+### 决策依据
+1. **数据安全性**: 历史版本功能防止数据丢失，提高系统可靠性
+2. **用户需求**: 误操作恢复是常见需求，提升用户体验
+3. **技术复杂性**: 相对可控，可逐步实现核心功能
+4. **项目完整性**: 完成知识库增强功能的最后一环
+
+### 规划过程
+
+#### 阶段 1: 分析现有功能
+- 检查现有笔记数据模型和API
+- 评估版本控制的技术实现方案
+- 确定用户界面集成方式
+
+#### 阶段 2: 设计技术方案
+**数据模型选择**:
+- 独立 NoteVersion 模型，存储完整历史版本
+- Note 模型添加 `currentVersion` 字段和关联关系
+- 版本号递增，确保数据一致性
+
+**API设计**:
+- 版本管理端点: 获取历史、创建版本、恢复版本
+- 集成到现有笔记保存逻辑
+- 用户隔离和权限控制
+
+**前端设计**:
+- 历史版本时间线组件
+- 版本对比功能
+- NoteEditor 集成版本面板
+
+#### 阶段 3: 更新规划文档
+1. **更新 task_plan.md**: 添加"任务 14：笔记历史版本功能"，包含7个阶段
+2. **更新 findings.md**: 记录详细技术设计、数据模型、API实现
+3. **更新 progress.md**: 记录本次规划过程
+
+### 任务规划详情
+
+**任务 14：笔记历史版本功能** 已添加到规划中，包含7个阶段：
+1. ⏳ 设计技术方案（已完成规划）
+2. ⏳ 创建数据模型
+3. ⏳ 实现后端 API
+4. ⏳ 实现前端 API 客户端
+5. ⏳ 创建历史版本 UI 组件
+6. ⏳ 集成到笔记编辑器
+7. ⏳ 测试与验证
+
+### 技术设计要点
+
+1. **数据模型**: NoteVersion 独立模型，关联 Note 和 User
+2. **版本策略**: 自动版本创建（每次保存），版本号递增
+3. **恢复选项**: 支持创建新版本或覆盖当前版本
+4. **用户界面**: 时间线视图、版本对比、恢复确认
+
+### 关键文件
+
+**需要创建的文件**:
+- `packages/web/src/api/versions.ts` - 版本管理API客户端
+- `packages/web/src/components/notes/VersionHistory.vue` - 历史版本组件
+- `packages/web/src/components/notes/VersionDiff.vue` - 版本对比组件
+- `packages/web/src/components/notes/RestoreDialog.vue` - 恢复对话框
+
+**需要修改的文件**:
+- `packages/server/prisma/schema.prisma` - 添加NoteVersion模型
+- `packages/server/src/index.ts` - 添加版本管理API
+- `packages/web/src/components/notes/NoteEditor.vue` - 集成版本面板
+- `packages/web/src/api/notes.ts` - 扩展笔记保存逻辑
+
+### 风险评估
+
+1. **存储增长**: 历史版本可能大量增加数据库存储 → 实施版本保留策略
+2. **性能影响**: 每次保存都创建版本可能影响性能 → 异步创建、可选功能
+3. **界面复杂度**: 版本管理界面可能复杂 → 简化设计、渐进式披露
+
+### 下一步
+
+1. 用户确认是否开始实现笔记历史版本功能
+2. 参考 task_plan.md 中的阶段指导开始实施
+3. 参考 findings.md 中的技术细节进行开发
+
+### 完成状态
+✅ 笔记历史版本功能规划已完成，所有规划文档已更新。
+
+## 2026-04-20 会话 - 实现笔记历史版本功能（任务14）
+
+### 目标
+完成笔记历史版本功能的完整实现，包括数据模型、后端API、前端组件和UI集成。
+
+### 实现过程
+
+#### 阶段 2: 创建数据模型 ✅
+1. **修改文件**: `packages/server/prisma/schema.prisma`
+2. **新增模型**: NoteVersion 模型，包含 noteId, title, content, tags, version, userId 等字段
+3. **更新关系**: Note 模型添加 versions 关联和 currentVersion 字段
+4. **用户隔离**: 所有版本记录用户ID，确保数据安全
+5. **数据库同步**: 运行 `prisma db push` 成功应用schema变更
+
+#### 阶段 3: 实现后端 API ✅
+1. **修改文件**: `packages/server/src/index.ts`
+2. **新增端点**:
+   - `GET /api/notes/:id/versions` - 获取笔记的所有历史版本
+   - `GET /api/notes/:id/versions/:versionId` - 获取特定历史版本
+   - `POST /api/notes/:id/versions` - 创建新版本（手动创建）
+   - `POST /api/notes/:id/restore` - 恢复到特定历史版本
+   - `DELETE /api/notes/:id/versions/:versionId` - 删除历史版本
+3. **用户认证**: 所有端点都经过认证中间件保护
+4. **权限检查**: 确保用户只能访问自己的笔记版本
+
+#### 阶段 4: 实现前端 API 客户端 ✅
+1. **创建文件**: `packages/web/src/api/versions.ts`
+2. **完整实现**:
+   - TypeScript接口: NoteVersion, CreateVersionData, RestoreVersionData
+   - API函数: getNoteVersions, getVersion, createVersion, restoreVersion, deleteVersion
+   - 用户认证: 所有请求自动携带认证信息
+   - 错误处理: 统一的错误处理和类型安全
+
+#### 阶段 5: 创建历史版本 UI 组件 ✅
+1. **创建文件**:
+   - `packages/web/src/components/notes/VersionHistory.vue` - 版本时间线组件
+   - `packages/web/src/components/notes/RestoreDialog.vue` - 版本恢复对话框
+   - `packages/web/src/components/notes/VersionDiff.vue` - 版本对比组件
+2. **功能特性**:
+   - 版本时间线: 显示所有历史版本，支持选择
+   - 恢复对话框: 确认恢复操作，支持创建新版本或覆盖当前版本
+   - 版本对比: 并排显示两个版本的内容差异
+   - 用户友好: 清晰的界面，及时的操作反馈
+
+#### 阶段 6: 集成到笔记编辑器 ✅
+1. **修改文件**: `packages/web/src/components/notes/NoteEditor.vue`
+2. **集成内容**:
+   - 导入版本管理API和组件
+   - 添加版本管理状态: versions, showVersionHistory
+   - 实现版本历史切换功能: toggleVersionHistory()
+   - 添加版本历史按钮到编辑器工具栏
+   - 集成VersionHistory组件到编辑器界面
+3. **UI集成**:
+   - 版本历史按钮显示在编辑器工具栏（History图标）
+   - 版本历史面板显示在编辑器和预览区域之前
+   - 条件渲染: 仅当有笔记且showVersionHistory为true时显示
+
+#### 阶段 7: 测试与验证（进行中）
+1. **TypeScript编译**: ✅ 后端和前端编译均成功通过
+2. **构建测试**: ✅ 生产构建成功完成
+3. **功能验证**: ⏳ 等待运行时测试和MCP自动化验证
+4. **数据库验证**: ✅ Prisma schema已成功同步
+
+### 技术实现细节
+
+#### 数据模型设计
+```prisma
+model NoteVersion {
+  id        Int      @id @default(autoincrement())
+  noteId    Int
+  note      Note     @relation(fields: [noteId], references: [id])
+  title     String
+  content   String
+  tags      String   // 逗号分隔的标签字符串
+  version   Int      // 版本号，从1开始递增
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  @@unique([noteId, version])  // 确保每个笔记的版本号唯一
+}
+```
+
+#### 版本控制策略
+1. **自动版本创建**: 每次保存笔记时自动创建新版本
+2. **版本号递增**: 每个笔记有独立的版本序列，从1开始递增
+3. **数据完整性**: 存储完整的笔记快照（标题、内容、标签）
+4. **用户隔离**: 确保用户只能访问自己的历史版本
+
+#### 前端组件架构
+1. **版本时间线**: 显示所有历史版本，支持点击选择
+2. **恢复对话框**: 提供恢复选项（创建新版本或覆盖当前版本）
+3. **版本对比**: 并排显示两个版本的内容差异
+4. **实时同步**: 版本列表随笔记编辑实时更新
+
+### 文件清单
+
+**新增文件**:
+1. `packages/web/src/api/versions.ts` - 版本管理API客户端
+2. `packages/web/src/components/notes/VersionHistory.vue` - 版本历史组件
+3. `packages/web/src/components/notes/RestoreDialog.vue` - 恢复对话框组件
+4. `packages/web/src/components/notes/VersionDiff.vue` - 版本对比组件
+
+**修改文件**:
+1. `packages/server/prisma/schema.prisma` - 添加NoteVersion模型和User关系
+2. `packages/server/src/index.ts` - 添加5个版本管理API端点
+3. `packages/web/src/api/notes.ts` - 扩展笔记保存逻辑，自动创建版本
+4. `packages/web/src/components/notes/NoteEditor.vue` - 集成版本面板和按钮
+
+### 当前状态
+- ✅ 阶段 1-6 已全部完成
+- ⏳ 阶段 7 测试与验证进行中
+- ✅ TypeScript编译通过，生产构建成功
+- ⏳ 等待运行时测试和MCP自动化验证
+
+### 下一步
+1. **启动开发服务器**: 测试功能是否正常工作
+2. **MCP自动化测试**: 验证版本创建、查看、恢复等功能
+3. **用户验收测试**: 确认功能符合需求
+4. **性能评估**: 检查版本创建对性能的影响
+5. **生产环境部署**: 准备发布到生产环境
+
+### 预计完成时间
+- 基础功能测试: 30分钟
+- MCP自动化测试: 20分钟
+- 用户验收: 10分钟
+- 总预计: 60分钟内完成所有测试
+
+---
+**继续执行阶段 7: 测试与验证**

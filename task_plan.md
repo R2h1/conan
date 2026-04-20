@@ -896,6 +896,77 @@ QuickSearch.vue（主组件）
 
 ---
 
+## 任务 14：笔记历史版本功能
+
+### 目标
+为笔记添加历史版本功能，允许用户查看笔记的修改历史、恢复到历史版本，提升数据安全性和可追溯性。
+
+### 用户决策
+| 问题 | 选择 |
+|------|------|
+| 数据模型 | 创建独立的 NoteVersion 模型，存储完整历史版本 |
+| 版本创建时机 | 每次保存时创建新版本（自动版本控制） |
+| 版本保留策略 | 保留所有历史版本，或按时间/数量限制 |
+| 恢复方式 | 恢复到历史版本，创建新版本或覆盖当前版本 |
+| 用户界面 | 时间线视图显示历史版本，支持版本对比 |
+
+### 阶段
+
+| 阶段 | 状态 | 说明 |
+|------|------|------|
+| 1. 设计技术方案 | ✅ 完成 | 确定数据模型、API设计、UI交互 |
+| 2. 创建数据模型 | ✅ 完成 | 在 Prisma 中添加 NoteVersion 模型 |
+| 3. 实现后端 API | ✅ 完成 | 创建版本管理端点（获取历史、创建版本、恢复版本） |
+| 4. 实现前端 API 客户端 | ✅ 完成 | 添加版本管理 API 函数 |
+| 5. 创建历史版本 UI 组件 | ✅ 完成 | 时间线组件、版本对比组件 |
+| 6. 集成到笔记编辑器 | ✅ 完成 | 在 NoteEditor 中添加历史版本面板 |
+| 7. 测试与验证 | ⏳ 进行中 | TypeScript编译、构建测试、MCP测试 |
+
+### 技术方案
+
+#### 1. 数据模型设计
+```prisma
+model NoteVersion {
+  id          Int      @id @default(autoincrement())
+  noteId      Int
+  note        Note     @relation(fields: [noteId], references: [id])
+  title       String
+  content     String
+  tags        String   // 逗号分隔的标签字符串
+  version     Int      // 版本号，从1开始递增
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 更新 Note 模型，添加 version 字段
+model Note {
+  // 现有字段...
+  versions    NoteVersion[]  // 关联关系
+  currentVersion Int @default(1)  // 当前版本号
+}
+```
+
+#### 2. API 端点设计
+- `GET /api/notes/:id/versions` - 获取笔记的所有历史版本
+- `GET /api/notes/:id/versions/:versionId` - 获取特定历史版本
+- `POST /api/notes/:id/versions` - 创建新版本（自动或手动）
+- `POST /api/notes/:id/restore` - 恢复到特定历史版本
+- `DELETE /api/notes/:id/versions/:versionId` - 删除历史版本
+
+#### 3. 版本控制策略
+1. **自动版本创建**：每次保存笔记时自动创建新版本
+2. **版本号管理**：递增版本号，记录当前版本号
+3. **数据存储**：存储完整的笔记快照（标题、内容、标签）
+4. **用户隔离**：只允许笔记所有者访问历史版本
+
+#### 4. 前端实现
+1. **历史版本面板**：在编辑器侧边或底部显示时间线
+2. **版本对比**：并排显示两个版本的内容差异
+3. **恢复操作**：确认对话框，支持恢复为当前版本或创建新版本
+4. **版本筛选**：按时间、标签、关键词筛选历史版本
+
 
 
 
