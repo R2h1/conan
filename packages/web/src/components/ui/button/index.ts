@@ -17,15 +17,23 @@ export const buttonVariants = cva(
           "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        // 温暖友好变体
+        warm: "bg-warm-500 text-white shadow hover:bg-warm-600 transition-all duration-200 hover:shadow-md",
+        "outline-warm": "border border-warm-300 text-warm-600 bg-transparent shadow-sm hover:bg-warm-50 hover:text-warm-700 transition-all duration-200",
+        soft: "bg-warm-100 text-warm-700 shadow-sm hover:bg-warm-200 hover:text-warm-800 transition-all duration-200",
+        gradient: "bg-gradient-to-r from-warm-400 to-warm-600 text-white shadow hover:from-warm-500 hover:to-warm-700 transition-all duration-200 hover:shadow-md",
+        glass: "bg-white/20 backdrop-blur-sm border border-white/30 text-warm-800 shadow-sm hover:bg-white/30 hover:shadow transition-all duration-200",
       },
       size: {
         "default": "h-9 px-4 py-2",
         "xs": "h-7 rounded px-2",
         "sm": "h-8 rounded-md px-3 text-xs",
         "lg": "h-10 rounded-md px-8",
+        "xl": "h-12 rounded-lg px-10 text-base",
         "icon": "h-9 w-9",
         "icon-sm": "size-8",
         "icon-lg": "size-10",
+        "icon-xl": "size-12",
       },
     },
     defaultVariants: {

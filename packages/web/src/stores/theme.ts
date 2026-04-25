@@ -16,85 +16,85 @@ export interface Theme {
   icon?: string;
 }
 
-// 预设主题列表
+// 预设主题列表 - 温暖友好设计系统
 const PRESET_THEMES: Theme[] = [
+  {
+    id: 'orange',
+    name: '橙色主题',
+    type: 'preset',
+    description: '温暖友好风格',
+    icon: '🍊',
+    colors: {
+      primary: '24 95% 53.1%',
+      primaryHover: '24 95% 48.1%',
+      ring: '24 95% 53.1%',
+    },
+  },
   {
     id: 'blue',
     name: '蓝色主题',
     type: 'preset',
-    description: '专业蓝色风格',
+    description: '专业信任风格',
     icon: '🔵',
     colors: {
-      primary: '221.2 83.2% 53.3%',
-      primaryHover: '221.2 83.2% 48%',
-      ring: '221.2 83.2% 53.3%',
+      primary: '201 96% 32%',
+      primaryHover: '201 96% 27%',
+      ring: '201 96% 32%',
     },
   },
   {
     id: 'green',
     name: '绿色主题',
     type: 'preset',
-    description: '清新绿色风格',
+    description: '成长清新风格',
     icon: '🌿',
     colors: {
-      primary: '142.1 76.2% 36.3%',
-      primaryHover: '142.1 76.2% 31.3%',
-      ring: '142.1 76.2% 36.3%',
+      primary: '142 76% 36%',
+      primaryHover: '142 76% 31%',
+      ring: '142 76% 36%',
     },
   },
   {
     id: 'purple',
     name: '紫色主题',
     type: 'preset',
-    description: '创意紫色风格',
+    description: '创意灵感风格',
     icon: '🌀',
     colors: {
-      primary: '262.1 83.3% 57.8%',
-      primaryHover: '262.1 83.3% 52.8%',
-      ring: '262.1 83.3% 57.8%',
-    },
-  },
-  {
-    id: 'orange',
-    name: '橙色主题',
-    type: 'preset',
-    description: '活力橙色风格',
-    icon: '🍊',
-    colors: {
-      primary: '24.6 95% 53.1%',
-      primaryHover: '24.6 95% 48.1%',
-      ring: '24.6 95% 53.1%',
+      primary: '282 83% 54%',
+      primaryHover: '282 83% 49%',
+      ring: '282 83% 54%',
     },
   },
   {
     id: 'pink',
     name: '粉红主题',
     type: 'preset',
-    description: '浪漫粉红风格',
+    description: '浪漫情感风格',
     icon: '🌸',
     colors: {
-      primary: '346.8 77.2% 49.8%',
-      primaryHover: '346.8 77.2% 44.8%',
-      ring: '346.8 77.2% 49.8%',
+      primary: '330 84% 60%',
+      primaryHover: '330 84% 55%',
+      ring: '330 84% 60%',
     },
   },
   {
     id: 'cyan',
     name: '青色主题',
     type: 'preset',
-    description: '科技青色风格',
+    description: '科技效率风格',
     icon: '💠',
     colors: {
-      primary: '188.7 94.5% 42.7%',
-      primaryHover: '188.7 94.5% 37.7%',
-      ring: '188.7 94.5% 42.7%',
+      primary: '188 94% 42%',
+      primaryHover: '188 94% 37%',
+      ring: '188 94% 42%',
     },
   },
 ];
 
 // 从 localStorage 读取保存的主题设置
 const STORAGE_KEY = 'conan-theme';
-const DEFAULT_THEME_ID = 'blue';
+const DEFAULT_THEME_ID = 'orange';
 
 export const useThemeStore = defineStore('theme', () => {
   // 当前主题 ID
@@ -170,26 +170,28 @@ export const useThemeStore = defineStore('theme', () => {
   const applyThemeToDOM = (theme: Theme) => {
     const root = document.documentElement;
 
-    // 设置 data-theme 属性
+    // 清除之前可能设置的内联样式变量
+    // 这些变量现在完全由CSS控制
+    const cssVariables = [
+      '--primary',
+      '--primary-hover',
+      '--ring',
+      '--accent',
+      '--accent-foreground',
+      '--secondary',
+      '--secondary-foreground'
+    ];
+
+    cssVariables.forEach(varName => {
+      root.style.removeProperty(varName);
+    });
+
+    // 设置 data-theme 属性，让CSS选择器应用主题
     if (theme.id === DEFAULT_THEME_ID) {
       root.removeAttribute('data-theme');
     } else {
       root.setAttribute('data-theme', theme.id);
     }
-
-    // 应用主题颜色变量
-    const { colors } = theme;
-    // 映射属性名：primaryHover -> --primary-hover
-    const cssVarMapping: Record<string, string> = {
-      primary: 'primary',
-      primaryHover: 'primary-hover',
-      ring: 'ring'
-    };
-
-    Object.entries(colors).forEach(([key, value]) => {
-      const cssVarName = `--${cssVarMapping[key] || key}`;
-      root.style.setProperty(cssVarName, value);
-    });
   };
 
   /**
