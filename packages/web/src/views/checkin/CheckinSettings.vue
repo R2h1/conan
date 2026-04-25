@@ -162,14 +162,14 @@ onMounted(() => {
       </CardContent>
     </Card>
 
-    <!-- AI设置 -->
+    <!-- 智能功能设置 -->
     <Card>
       <CardHeader>
-        <CardTitle>AI设置</CardTitle>
+        <CardTitle>智能功能设置</CardTitle>
       </CardHeader>
       <CardContent class="space-y-4">
         <div class="flex items-center justify-between">
-          <Label for="aiEnabled">启用AI功能</Label>
+          <Label for="aiEnabled">启用智能功能</Label>
           <Input
             id="aiEnabled"
             type="checkbox"

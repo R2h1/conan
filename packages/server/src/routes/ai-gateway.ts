@@ -4,8 +4,8 @@ import { requireAuth } from '../plugins/auth-middleware.js';
 
 const prisma = new PrismaClient();
 
-// AI服务提供商类型（只保留火山引擎）
-type AIProvider = 'volcano' | 'fallback';
+// 服务提供商类型（只使用传统规则引擎）
+type AIProvider = 'rule-engine';
 
 // AI任务类型
 type AITask =
@@ -53,21 +53,12 @@ interface AIProviderConfig {
   };
 }
 
-// 默认提供商配置（从环境变量加载）
+// 默认提供商配置（不使用AI，只使用传统规则引擎）
 const DEFAULT_PROVIDERS: AIProviderConfig[] = [
   {
-    name: 'volcano',
-    enabled: !!process.env.VOLCANO_API_KEY,
-    priority: 0, // 最高优先级
-    apiKey: process.env.VOLCANO_API_KEY,
-    baseUrl:
-      process.env.VOLCANO_BASE_URL ||
-      'https://ark.cn-beijing.volces.com/api/v3/chat/completions',
-  },
-  {
-    name: 'fallback',
-    enabled: true, // 总是启用作为后备
-    priority: 100,
+    name: 'rule-engine',
+    enabled: true, // 总是启用，使用传统规则引擎
+    priority: 0,
   },
 ];
 
@@ -345,140 +336,51 @@ ${input}
     return aiResponse;
   }
 
-  // 通用AI调用
+  // 传统规则引擎调用（不使用AI）
   private async callGenericAI(
     prompt: string,
     providerConfig?: AIProviderConfig,
   ): Promise<string> {
-    // 模拟API延迟
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    // 模拟处理延迟
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // 如果是fallback提供商，使用规则引擎
-    if (providerConfig?.name === 'fallback') {
-      return this.getFallbackResponse(prompt);
-    }
-
-    // 检查是否有API密钥配置
-    if (!providerConfig?.apiKey) {
-      console.log(
-        `Provider ${providerConfig?.name} has no API key, using enhanced simulation`,
-      );
-      return this.getEnhancedSimulatedResponse(
-        prompt,
-        providerConfig?.name || 'ai',
-      );
-    }
-
-    // 根据提供商调用相应的AI API
-    try {
-      switch (providerConfig?.name) {
-        case 'volcano':
-          return await this.callVolcanoAI(prompt, providerConfig);
-        default:
-          return this.getEnhancedSimulatedResponse(
-            prompt,
-            providerConfig?.name || 'ai',
-          );
-      }
-    } catch (error) {
-      console.error(
-        `Error calling AI provider ${providerConfig?.name}:`,
-        error,
-      );
-      // 如果API调用失败，返回模拟响应
-      return this.getEnhancedSimulatedResponse(
-        prompt,
-        providerConfig?.name || 'ai',
-      );
-    }
+    // 总是使用增强的规则引擎响应（传统方式）
+    return this.getEnhancedSimulatedResponse(
+      prompt,
+      providerConfig?.name || 'rule-engine',
+    );
   }
 
-  // 调用火山引擎（Volcano）AI API
-  private async callVolcanoAI(
-    prompt: string,
-    config: AIProviderConfig,
-  ): Promise<string> {
-    // 火山引擎API
-    const baseUrl = config.baseUrl || 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
-    const apiKey = config.apiKey || '';
-    const model = 'deepseek-v3.2'; // 用户指定的模型
 
-    if (!apiKey) {
-      throw new Error('Volcano API key is required');
+  // 从文本中提取金额
+  private extractAmountFromText(text: string): number {
+    // 匹配数字模式，包括小数
+    const amountRegex = /(\d+(?:\.\d+)?)\s*(?:元|块|块钱|rmb|人民币)?/gi;
+    const matches = text.match(amountRegex);
+
+    if (matches && matches.length > 0) {
+      // 取第一个匹配的数字
+      const amountStr = matches[0].replace(/[^\d.]/g, '');
+      const amount = parseFloat(amountStr);
+
+      // 检查是否合理金额（1-1000000之间）
+      if (!isNaN(amount) && amount >= 1 && amount <= 1000000) {
+        return amount;
+      }
     }
 
-    console.log('Calling Volcano API with baseUrl:', baseUrl);
-
-    try {
-      // 使用官方示例中的格式
-      const requestData = {
-        model: model,
-        messages: [
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 500,
-        temperature: 0.7,
-        stream: false // 非流式输出
-      };
-
-      console.log('Sending request to Volcano API...');
-      const response = await fetch(baseUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Volcano API error (${response.status}):`, errorText);
-
-        // 尝试解析错误信息
-        try {
-          const errorJson = JSON.parse(errorText);
-          console.error('Volcano API error details:', errorJson);
-
-          if (errorJson.error?.message) {
-            throw new Error(`Volcano AI API error: ${errorJson.error.message}`);
-          } else if (errorJson.message) {
-            throw new Error(`Volcano AI API error: ${errorJson.message}`);
-          }
-        } catch {
-          // 忽略解析错误
-        }
-
-        throw new Error(`Volcano AI API error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      console.log('Volcano API response received:', data);
-
-      // 解析响应格式
-      if (data.choices && Array.isArray(data.choices) && data.choices.length > 0) {
-        if (data.choices[0]?.message?.content) {
-          return data.choices[0].message.content;
-        } else if (data.choices[0]?.text) {
-          return data.choices[0].text;
-        }
-      } else if (data.text) {
-        return data.text;
-      } else if (data.message) {
-        return data.message;
-      } else if (data.result) {
-        return data.result;
-      }
-
-      // 如果无法解析，返回原始数据
-      console.log('Raw API response (could not parse):', data);
-      return JSON.stringify(data, null, 2);
-    } catch (error) {
-      console.error('Volcano AI call failed:', error);
-      // 不要抛出错误，而是返回模拟响应
-      console.log('Falling back to enhanced simulation...');
-      return this.getEnhancedSimulatedResponse(prompt, 'volcano');
+    // 如果没有找到有效金额，根据上下文返回默认值
+    if (text.includes('工资') || text.includes('收入') || text.includes('转账')) {
+      return 5000; // 工资/收入类默认值
+    } else if (text.includes('午餐') || text.includes('晚餐') || text.includes('早餐')) {
+      return 35; // 餐饮类默认值
+    } else if (text.includes('交通') || text.includes('打车') || text.includes('地铁')) {
+      return 20; // 交通类默认值
+    } else if (text.includes('购物') || text.includes('买') || text.includes('商品')) {
+      return 200; // 购物类默认值
     }
+
+    return 100; // 通用默认值
   }
 
   // 增强的模拟响应
@@ -489,46 +391,103 @@ ${input}
     // 根据提示内容生成更有意义的模拟响应
     const lowerPrompt = prompt.toLowerCase();
 
-    if (
+    // 首先检查每日简报（因为其提示可能包含"财务"等词，需要优先匹配）
+    if (lowerPrompt.includes('简报') || lowerPrompt.includes('每日')) {
+      // 每日简报模拟
+      const today = new Date();
+      const season = this.getCurrentSeason();
+      return `# 📊 每日简报 - ${today.toLocaleDateString('zh-CN')}
+
+## 🌤️ 天气建议
+当前是${season}，${
+        season === '春季'
+          ? '气温适宜，建议户外活动'
+          : season === '夏季'
+            ? '天气炎热，注意防暑降温'
+            : season === '秋季'
+              ? '天气凉爽，适合运动'
+              : '天气寒冷，注意保暖'
+      }。
+
+## 💪 健康提醒
+- 保持每天30分钟中等强度运动
+- 注意饮食均衡，多吃蔬菜水果
+- 保证7-8小时充足睡眠
+
+## 💰 财务小贴士
+今天的花费在预算内，继续保持！
+
+## 📚 学习建议
+今天可以学习一个新技能或阅读30分钟。
+
+## 💫 励志语录
+"行动是治愈恐惧的良药，而犹豫拖延将不断滋养恐惧。"`;
+    } else if (
       lowerPrompt.includes('记账') ||
       lowerPrompt.includes('财务') ||
       lowerPrompt.includes('花了') ||
-      lowerPrompt.includes('收入')
+      lowerPrompt.includes('收入') ||
+      lowerPrompt.includes('支出') ||
+      lowerPrompt.includes('消费')
     ) {
       // 财务解析模拟
+      const amount = this.extractAmountFromText(prompt);
+
       return JSON.stringify(
         {
-          type: lowerPrompt.includes('花了') ? 'expense' : 'income',
-          amount: lowerPrompt.includes('35')
-            ? 35
-            : lowerPrompt.includes('5000')
-              ? 5000
-              : 100,
-          category: lowerPrompt.includes('午餐')
+          type: lowerPrompt.includes('花了') || lowerPrompt.includes('支出') || lowerPrompt.includes('消费') ? 'expense' : 'income',
+          amount: amount,
+          category: lowerPrompt.includes('午餐') || lowerPrompt.includes('晚饭') || lowerPrompt.includes('晚餐') || lowerPrompt.includes('早饭') || lowerPrompt.includes('早餐') || lowerPrompt.includes('吃饭') || lowerPrompt.includes('餐饮') || lowerPrompt.includes('餐厅') || lowerPrompt.includes('饭店') || lowerPrompt.includes('快餐')
             ? '餐饮'
-            : lowerPrompt.includes('工资')
+            : lowerPrompt.includes('工资') || lowerPrompt.includes('薪水') || lowerPrompt.includes('收入') || lowerPrompt.includes('薪资') || lowerPrompt.includes('发工资')
               ? '工资'
-              : lowerPrompt.includes('交通')
+              : lowerPrompt.includes('交通') || lowerPrompt.includes('打车') || lowerPrompt.includes('地铁') || lowerPrompt.includes('公交') || lowerPrompt.includes('出租车') || lowerPrompt.includes('滴滴') || lowerPrompt.includes('出行') || lowerPrompt.includes('车费')
                 ? '交通'
-                : '其他',
+                : lowerPrompt.includes('购物') || lowerPrompt.includes('买') || lowerPrompt.includes('商品') || lowerPrompt.includes('衣服') || lowerPrompt.includes('鞋子') || lowerPrompt.includes('网购') || lowerPrompt.includes('商场')
+                  ? '购物'
+                  : lowerPrompt.includes('娱乐') || lowerPrompt.includes('电影') || lowerPrompt.includes('游戏') || lowerPrompt.includes('ktv') || lowerPrompt.includes('唱歌') || lowerPrompt.includes('旅游')
+                    ? '娱乐'
+                    : lowerPrompt.includes('医疗') || lowerPrompt.includes('医院') || lowerPrompt.includes('药品') || lowerPrompt.includes('看病') || lowerPrompt.includes('药')
+                      ? '医疗'
+                      : lowerPrompt.includes('教育') || lowerPrompt.includes('学习') || lowerPrompt.includes('课程') || lowerPrompt.includes('学费') || lowerPrompt.includes('书本')
+                        ? '教育'
+                        : lowerPrompt.includes('住房') || lowerPrompt.includes('房租') || lowerPrompt.includes('房贷') || lowerPrompt.includes('水电') || lowerPrompt.includes('物业')
+                          ? '住房'
+                          : '其他',
           account: lowerPrompt.includes('支付宝')
             ? '支付宝'
             : lowerPrompt.includes('微信')
               ? '微信'
-              : lowerPrompt.includes('银行卡')
+              : lowerPrompt.includes('银行卡') || lowerPrompt.includes('储蓄卡') || lowerPrompt.includes('信用卡')
                 ? '银行卡'
                 : '现金',
-          note: lowerPrompt.includes('午餐')
+          note: lowerPrompt.includes('午餐') || lowerPrompt.includes('午饭')
             ? '午餐'
-            : lowerPrompt.includes('工资')
-              ? '工资转账'
-              : '日常消费',
+            : lowerPrompt.includes('晚餐') || lowerPrompt.includes('晚饭')
+              ? '晚餐'
+              : lowerPrompt.includes('早餐') || lowerPrompt.includes('早饭')
+                ? '早餐'
+                : lowerPrompt.includes('工资') || lowerPrompt.includes('薪水') || lowerPrompt.includes('收入')
+                  ? '工资转账'
+                  : lowerPrompt.includes('交通') || lowerPrompt.includes('打车') || lowerPrompt.includes('地铁') || lowerPrompt.includes('公交')
+                    ? '交通费'
+                    : lowerPrompt.includes('购物') || lowerPrompt.includes('买') || lowerPrompt.includes('商品')
+                      ? '购物消费'
+                      : lowerPrompt.includes('娱乐') || lowerPrompt.includes('电影') || lowerPrompt.includes('游戏')
+                        ? '娱乐消费'
+                        : lowerPrompt.includes('医疗') || lowerPrompt.includes('医院') || lowerPrompt.includes('药品')
+                          ? '医疗费用'
+                          : lowerPrompt.includes('教育') || lowerPrompt.includes('学习') || lowerPrompt.includes('课程')
+                            ? '教育支出'
+                            : lowerPrompt.includes('住房') || lowerPrompt.includes('房租') || lowerPrompt.includes('房贷')
+                              ? '住房费用'
+                              : '日常消费',
           date: new Date().toISOString().split('T')[0],
         },
         null,
         2,
       );
-    } else if (lowerPrompt.includes('简报') || lowerPrompt.includes('每日')) {
+    } else if (lowerPrompt.includes('学习') || lowerPrompt.includes('摘要')) {
       // 每日简报模拟
       const today = new Date();
       const season = this.getCurrentSeason();
@@ -618,21 +577,6 @@ ${prompt.substring(0, 100)}...
     }
   }
 
-  // 后备响应（当所有AI服务都不可用时）
-  private getFallbackResponse(prompt: string): string {
-    // 简单的规则引擎作为后备
-    if (prompt.includes('记账') || prompt.includes('财务')) {
-      return '财务解析服务暂时不可用，请手动输入记账信息。';
-    } else if (prompt.includes('学习') || prompt.includes('摘要')) {
-      return '学习摘要服务暂时不可用，请手动总结学习内容。';
-    } else if (prompt.includes('运动') || prompt.includes('推荐')) {
-      return '运动推荐服务暂时不可用，建议进行散步或伸展运动。';
-    } else if (prompt.includes('简报') || prompt.includes('每日')) {
-      return '每日简报服务暂时不可用，祝您有美好的一天！';
-    } else {
-      return 'AI服务暂时不可用，请稍后再试。';
-    }
-  }
 
   // 解析财务AI响应
   private parseFinanceAIResponse(aiResponse: string): any {

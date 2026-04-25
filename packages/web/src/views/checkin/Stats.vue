@@ -185,7 +185,7 @@ onMounted(() => {
         <CardContent>
           <div v-if="briefingLoading" class="text-center py-8">
             <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-            <p class="mt-2 text-sm text-muted-foreground">AI正在生成每日简报...</p>
+            <p class="mt-2 text-sm text-muted-foreground">正在生成每日简报...</p>
           </div>
           <div v-else-if="showBriefing && dailyBriefing">
             <div class="prose prose-sm max-w-none" v-html="formatMarkdown(dailyBriefing)"></div>
@@ -197,7 +197,7 @@ onMounted(() => {
           </div>
           <div v-else class="text-center py-8 text-muted-foreground">
             <div class="mb-2">📋 每日简报</div>
-            <p class="text-sm">点击"生成简报"按钮获取AI生成的个性化建议</p>
+            <p class="text-sm">点击"生成简报"按钮获取个性化建议</p>
             <p class="text-xs mt-2">包含天气建议、健康提醒、财务小贴士等</p>
           </div>
         </CardContent>

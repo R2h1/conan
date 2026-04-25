@@ -156,7 +156,7 @@ onMounted(() => {
     <Card v-if="showRecommendation">
       <CardHeader>
         <div class="flex items-center justify-between">
-          <CardTitle>AI运动推荐</CardTitle>
+          <CardTitle>运动推荐</CardTitle>
           <Button
             @click="showRecommendation = false"
             variant="ghost"
@@ -169,7 +169,7 @@ onMounted(() => {
       <CardContent>
         <div v-if="recommendationLoading" class="text-center py-8">
           <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p class="mt-2 text-sm text-muted-foreground">AI正在生成运动推荐...</p>
+          <p class="mt-2 text-sm text-muted-foreground">正在生成运动推荐...</p>
         </div>
         <div v-else-if="exerciseRecommendation" class="prose prose-sm max-w-none">
           <div v-html="formatMarkdown(exerciseRecommendation)"></div>

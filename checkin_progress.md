@@ -129,6 +129,10 @@
   - **2026-04-24更新**: 根据官方示例修正API配置，使用正确端点 `/api/v3/chat/completions`
   - **2026-04-24更新**: 更新模型名称为 `deepseek-v3.2`（用户指定）
   - **2026-04-24更新**: 完全重写 `callVolcanoAI` 函数，使用官方OpenAI兼容格式
+  - **2026-04-24更新**: 根据用户要求，将所有AI功能改为传统规则引擎实现
+  - **2026-04-24更新**: 移除火山引擎API调用，仅保留规则引擎提供商
+  - **2026-04-24更新**: 更新前端API类型定义，匹配后端规则引擎提供商
+  - **2026-04-24更新**: 删除未使用的AI提供商相关代码，简化架构
 - Files created/modified:
   - packages/server/src/routes/ai-gateway.ts（创建并更新）
   - packages/server/prisma/schema.prisma（更新：添加AIUsageLog模型）

@@ -13,8 +13,8 @@ export type AITask =
   | 'exercise-recommend' // 运动推荐
   | 'general-chat';      // 通用聊天
 
-// AI提供商类型
-export type AIProvider = 'openai' | 'anthropic' | 'huggingface' | 'local' | 'fallback';
+// 服务提供商类型（传统规则引擎）
+export type AIProvider = 'rule-engine';
 
 // AI请求接口
 export interface AIRequest {

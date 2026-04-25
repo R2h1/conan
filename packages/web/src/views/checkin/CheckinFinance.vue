@@ -155,11 +155,11 @@ onMounted(() => {
       </Button>
     </div>
 
-    <!-- AI智能解析 -->
+    <!-- 智能解析 -->
     <Card>
       <CardHeader>
-        <CardTitle>AI智能解析</CardTitle>
-        <p class="text-sm text-muted-foreground">输入自然语言记账文本，自动解析为结构化数据</p>
+        <CardTitle>智能解析</CardTitle>
+        <p class="text-sm text-muted-foreground">输入自然语言记账文本，自动解析为结构化数据（基于规则引擎）</p>
       </CardHeader>
       <CardContent>
         <div class="space-y-4">

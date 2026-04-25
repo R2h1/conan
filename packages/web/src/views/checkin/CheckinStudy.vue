@@ -176,7 +176,7 @@ onMounted(() => {
               id="content"
               v-model="form.content"
               required
-              placeholder="学习内容或书籍名称（输入详细内容以便AI生成更好的摘要）"
+              placeholder="学习内容或书籍名称（输入详细内容以便生成更好的摘要）"
               rows="2"
             />
           </div>
@@ -215,13 +215,13 @@ onMounted(() => {
                 :disabled="summaryLoading || !form.content.trim()"
               >
                 <span v-if="summaryLoading">生成中...</span>
-                <span v-else>AI生成摘要</span>
+                <span v-else>生成摘要</span>
               </Button>
             </div>
             <Textarea
               id="summary"
               v-model="form.summary"
-              placeholder="学习摘要或心得（可手动输入或使用AI生成）"
+              placeholder="学习摘要或心得（可手动输入或使用智能生成）"
               rows="3"
             />
             <div v-if="summaryError" class="text-sm text-red-600 bg-red-50 p-2 rounded-md">
