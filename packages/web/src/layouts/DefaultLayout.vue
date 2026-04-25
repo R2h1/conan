@@ -71,7 +71,7 @@
     <div class="flex relative">
       <!-- 桌面侧边栏（可折叠） -->
       <aside
-        class="hidden lg:block border-r transition-all duration-300 relative"
+        class="hidden lg:block border-r transition-all duration-300 relative group"
         :class="sidebarCollapsed ? 'w-16' : 'w-64'"
       >
         <nav class="sticky top-[57px] h-[calc(100vh-57px)] overflow-y-auto p-2">
@@ -120,7 +120,7 @@
 
         <!-- 折叠按钮（位于侧边栏右边缘） -->
         <div
-          class="absolute top-1/4 -translate-y-1/2 -right-3 w-6 h-6 rounded-full bg-background border shadow-sm flex items-center justify-center cursor-pointer hover:bg-accent transition-colors z-10"
+          class="absolute top-1/4 -translate-y-1/2 -right-3 w-6 h-6 rounded-full bg-background border shadow-sm flex items-center justify-center cursor-pointer hover:bg-accent transition-colors z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
           @click="sidebarCollapsed = !sidebarCollapsed"
         >
           <ChevronLeft v-if="!sidebarCollapsed" class="h-4 w-4" />
@@ -140,7 +140,7 @@
               :key="item.path"
             >
               <RouterLink
-                :to="item.path"
+                :to="'/app' + item.path"
                 class="flex items-center gap-2"
                 @click="mobileMenuOpen = false"
               >
@@ -186,6 +186,7 @@ import {
   Lightbulb,
   Palette,
   Search,
+  Calendar,
 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -229,9 +230,10 @@ const openSearch = () => {
 };
 
 const navItems = [
-  { name: '仪表盘', path: '', icon: LayoutDashboard },
+  { name: '仪表盘', path: '/dashboard', icon: LayoutDashboard },
   { name: '工具集', path: '/tools', icon: Wrench },
   { name: '知识库', path: '/notes', icon: BookOpen },
-  { name: '灵感箱', path: '/ideas', icon: Lightbulb },
+  { name: '灵感圈', path: '/ideas', icon: Lightbulb },
+  { name: '打卡系统', path: '/checkin', icon: Calendar },
 ];
 </script>

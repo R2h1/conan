@@ -7,12 +7,6 @@ import authRoutes from './routes/auth.js';
 import ideaRoutes from './routes/ideas.js';
 import activitiesRoutes from './routes/activities.js';
 import checkinFinanceRoutes from './routes/checkin-finance.js';
-import checkinExerciseRoutes from './routes/checkin-exercise.js';
-import checkinStudyRoutes from './routes/checkin-study.js';
-import checkinSummaryRoutes from './routes/checkin-summary.js';
-import checkinPreferenceRoutes from './routes/checkin-preference.js';
-import aiGatewayRoutes from './routes/ai-gateway.js';
-import { SchedulerService } from './services/scheduler-service.js';
 import { requireAuth } from './plugins/auth-middleware.js';
 
 const prisma = new PrismaClient();
@@ -65,14 +59,7 @@ fastify.register(ideaRoutes);
 
 // 注册活动记录路由
 fastify.register(activitiesRoutes);
-// 注册财务打卡路由
-fastify.register(checkinFinanceRoutes);
-fastify.register(checkinExerciseRoutes);
 
-fastify.register(checkinStudyRoutes);
-fastify.register(checkinSummaryRoutes);
-fastify.register(checkinPreferenceRoutes);
-fastify.register(aiGatewayRoutes);
 // 获取当前用户信息
 fastify.get('/api/auth/me', async (request, reply) => {
   try {
@@ -631,10 +618,6 @@ fastify.get('/api/tags/cloud', async (request, reply) => {
 
 const start = async () => {
   try {
-    // 初始化调度器（微信提醒、定时任务等）
-    const scheduler = SchedulerService.getInstance();
-    await scheduler.initialize();
-
     await fastify.listen({ port: 3000, host: '0.0.0.0' });
     console.log('Server running on http://localhost:3000');
   } catch (err) {

@@ -31,10 +31,11 @@ const router = createRouter({
     {
       path: '/app',
       component: DefaultLayout,
+      redirect: '/app/dashboard',
       meta: { title: '仪表盘' },
       children: [
         {
-          path: '',
+          path: 'dashboard',
           name: 'dashboard',
           component: () => import('../views/Dashboard.vue'),
           meta: { title: '仪表盘' },
@@ -63,12 +64,57 @@ const router = createRouter({
           component: () => import('../views/Tags.vue'),
           meta: { title: '标签云' },
         },
+        // 打卡系统
+        {
+          path: 'checkin',
+          redirect: '/app/checkin/finance',
+          component: () => import('../views/Checkin.vue'),
+          meta: { title: '打卡系统' },
+          children: [
+            {
+              path: 'finance',
+              name: 'checkin-finance',
+              component: () => import('../views/checkin/CheckinFinance.vue'),
+              meta: { title: '财务记账' },
+            },
+            {
+              path: 'exercise',
+              name: 'checkin-exercise',
+              component: () => import('../views/checkin/CheckinExercise.vue'),
+              meta: { title: '运动记录' },
+            },
+            {
+              path: 'study',
+              name: 'checkin-study',
+              component: () => import('../views/checkin/CheckinStudy.vue'),
+              meta: { title: '学习阅读' },
+            },
+            {
+              path: 'calendar',
+              name: 'checkin-calendar',
+              component: () => import('../views/checkin/Calendar.vue'),
+              meta: { title: '打卡日历' },
+            },
+            {
+              path: 'stats',
+              name: 'checkin-stats',
+              component: () => import('../views/checkin/Stats.vue'),
+              meta: { title: '统计图表' },
+            },
+            {
+              path: 'settings',
+              name: 'checkin-settings',
+              component: () => import('../views/checkin/CheckinSettings.vue'),
+              meta: { title: '设置' },
+            },
+          ],
+        },
       ],
     },
-    // 重定向：访问旧路径 /tools 等自动转到 /app/tools
+    // 重定向：访问旧路径自动转到 /app
     {
       path: '/:pathMatch(.*)*',
-      redirect: (to) => `/app${to.path}`,
+      redirect: '/app',
     },
   ],
 });
@@ -77,7 +123,8 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   // 更新页面标题
   const pageTitle = to.meta?.title || 'Conan数字平台';
-  document.title = pageTitle === 'Conan数字平台' ? pageTitle : `${pageTitle} - Conan数字平台`;
+  document.title =
+    pageTitle === 'Conan数字平台' ? pageTitle : `${pageTitle} - Conan数字平台`;
 
   // 白名单路由
   const publicRoutes = ['/', '/login', '/register'];
@@ -105,7 +152,13 @@ router.beforeEach(async (to) => {
     const { recordPageVisit } = activitiesModule;
 
     // 只记录主要页面访问
-    const pagePaths = ['/app', '/app/notes', '/app/ideas', '/app/tools', '/app/tags'];
+    const pagePaths = [
+      '/app',
+      '/app/notes',
+      '/app/ideas',
+      '/app/tools',
+      '/app/tags',
+    ];
     if (pagePaths.includes(to.path)) {
       recordPageVisit(to.path, String(pageTitle));
     }

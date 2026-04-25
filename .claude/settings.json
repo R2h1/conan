@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm exec *)",
+      "Bash(pnpm --filter web build)",
+      "Bash(pnpm --filter web add echarts@5.4.3)",
+      "Bash(pnpm --filter web add vue-echarts@6.6.0)",
+      "Bash(pnpm --filter server prisma generate)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5174)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173)"
+    ]
+  }
+}
