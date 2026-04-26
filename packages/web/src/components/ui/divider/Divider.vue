@@ -49,7 +49,7 @@ const colorClasses = {
   primary: "border-primary",
   secondary: "border-secondary",
   muted: "border-muted",
-  warm: "border-warm-300",
+  warm: "border-warm-200",
 }
 </script>
 

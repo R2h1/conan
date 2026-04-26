@@ -15,7 +15,7 @@ export const cardVariants = cva(
       variant: {
         default: "",
         glass: "glass border-white/20 bg-white/10 backdrop-blur-sm",
-        gradient: "bg-gradient-to-br from-warm-50 to-warm-100 border-warm-200",
+        gradient: "bg-gradient-to-br from-warm-50 to-warm-200 border-warm-200",
         interactive: "cursor-pointer hover:shadow-lg hover:-translate-y-1 hover:border-primary/50 transition-transform duration-300",
         bordered: "border-2 border-primary/20",
         elevated: "shadow-lg border-0",
