@@ -9,10 +9,7 @@ type AIProvider = 'rule-engine';
 
 // AI任务类型
 type AITask =
-  | 'finance-parse' // 智能记账解析
-  | 'daily-briefing' // 每日简报生成
   | 'study-summary' // 学习内容摘要生成
-  | 'exercise-recommend' // 运动推荐
   | 'general-chat'; // 通用聊天
 
 // AI请求接口
@@ -153,28 +150,9 @@ class AIGateway {
 
       // 根据任务类型调用不同的处理函数
       switch (request.task) {
-        case 'finance-parse':
-          result = await this.handleFinanceParse(
-            request.input,
-            request.context,
-            providerConfig,
-          );
-          break;
-        case 'daily-briefing':
-          result = await this.handleDailyBriefing(
-            request.context,
-            providerConfig,
-          );
-          break;
         case 'study-summary':
           result = await this.handleStudySummary(
             request.input,
-            request.context,
-            providerConfig,
-          );
-          break;
-        case 'exercise-recommend':
-          result = await this.handleExerciseRecommend(
             request.context,
             providerConfig,
           );
@@ -219,62 +197,7 @@ class AIGateway {
     }
   }
 
-  // 智能记账解析处理器
-  private async handleFinanceParse(
-    input: string,
-    context?: Record<string, any>,
-    provider?: AIProviderConfig,
-  ): Promise<any> {
-    // 使用AI解析自然语言记账文本
-    const prompt = `请将以下中文记账文本解析为结构化数据。输入: "${input}"
 
-要求返回JSON格式:
-{
-  "type": "income" 或 "expense",
-  "amount": 金额（数字）,
-  "category": "分类名称",
-  "account": "账户名称"（如支付宝、微信、现金、银行卡等）,
-  "note": "备注说明"（可选）,
-  "date": "YYYY-MM-DD"（可选，默认为今天）
-}
-
-分类参考:
-- 收入: 工资、奖金、投资、其他收入
-- 支出: 餐饮、交通、购物、娱乐、学习、医疗、住房、其他支出
-
-示例:
-输入: "今天午餐用支付宝花了35元"
-输出: {"type": "expense", "amount": 35, "category": "餐饮", "account": "支付宝", "note": "午餐"}
-
-输入: "收到工资转账5000元到银行卡"
-输出: {"type": "income", "amount": 5000, "category": "工资", "account": "银行卡", "note": "工资转账"}
-
-现在解析这个输入: "${input}"`;
-
-    const aiResponse = await this.callGenericAI(prompt, provider);
-    return this.parseFinanceAIResponse(aiResponse);
-  }
-
-  // 每日简报生成处理器
-  private async handleDailyBriefing(
-    context?: Record<string, any>,
-    provider?: AIProviderConfig,
-  ): Promise<any> {
-    // 生成每日简报
-    const prompt = `请生成一份个人每日简报，包含以下内容:
-1. 今日天气建议（根据当前季节和日期）
-2. 健康提醒（饮食、运动建议）
-3. 财务小贴士
-4. 学习/阅读建议
-5. 励志语录
-
-今天是 ${new Date().toLocaleDateString('zh-CN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-
-请以友好的中文语气生成，格式为Markdown。`;
-
-    const aiResponse = await this.callGenericAI(prompt, provider);
-    return aiResponse;
-  }
 
   // 学习内容摘要生成处理器
   private async handleStudySummary(
@@ -300,28 +223,6 @@ ${input}
     return aiResponse;
   }
 
-  // 运动推荐处理器
-  private async handleExerciseRecommend(
-    context?: Record<string, any>,
-    provider?: AIProviderConfig,
-  ): Promise<any> {
-    // 生成运动推荐
-    const prompt = `请根据以下信息生成个性化运动推荐:
-- 当前季节: ${this.getCurrentSeason()}
-- 当前时间: ${new Date().getHours()}点
-- 推荐类型: 室内/室外运动
-
-要求:
-1. 推荐3种适合当前条件的运动
-2. 每种运动说明时长、强度和注意事项
-3. 提供热身和放松建议
-4. 格式为Markdown
-
-请使用中文回复。`;
-
-    const aiResponse = await this.callGenericAI(prompt, provider);
-    return aiResponse;
-  }
 
   // 通用聊天处理器
   private async handleGeneralChat(
@@ -578,46 +479,6 @@ ${prompt.substring(0, 100)}...
   }
 
 
-  // 解析财务AI响应
-  private parseFinanceAIResponse(aiResponse: string): any {
-    try {
-      // 尝试从AI响应中提取JSON
-      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-
-        // 验证必需字段
-        if (
-          !parsed.type ||
-          !parsed.amount ||
-          !parsed.category ||
-          !parsed.account
-        ) {
-          throw new Error('解析结果缺少必需字段');
-        }
-
-        // 设置默认值
-        if (!parsed.date) {
-          parsed.date = new Date().toISOString().split('T')[0];
-        }
-
-        return parsed;
-      }
-      throw new Error('未找到JSON响应');
-    } catch (error) {
-      console.error('Failed to parse AI response:', error);
-      throw new Error('AI响应解析失败，请重试或手动输入');
-    }
-  }
-
-  // 获取当前季节
-  private getCurrentSeason(): string {
-    const month = new Date().getMonth() + 1;
-    if (month >= 3 && month <= 5) return '春季';
-    if (month >= 6 && month <= 8) return '夏季';
-    if (month >= 9 && month <= 11) return '秋季';
-    return '冬季';
-  }
 }
 
 // 创建全局AI Gateway实例
@@ -701,94 +562,7 @@ export default async function aiGatewayRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // 智能记账解析专用接口
-  fastify.post(
-    '/api/ai/finance/parse',
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      await requireAuth(request, reply);
 
-      const user: any = request.user;
-      const { text } = request.body as { text: string };
-
-      if (!text) {
-        return reply.status(400).send({ error: '记账文本不能为空' });
-      }
-
-      const aiRequest: AIRequest = {
-        task: 'finance-parse',
-        input: text,
-        context: { userId: user.userId },
-      };
-
-      const response = await aiGateway.callAI(aiRequest);
-      return response;
-    },
-  );
-
-  // 每日简报生成
-  fastify.get(
-    '/api/ai/daily-briefing',
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      await requireAuth(request, reply);
-
-      const user: any = request.user;
-
-      // 获取用户最近的打卡数据作为上下文
-      const today = new Date();
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
-
-      const [financeRecords, exerciseRecords, studyRecords] = await Promise.all(
-        [
-          prisma.financeRecord.findMany({
-            where: {
-              userId: user.userId,
-              date: {
-                gte: yesterday,
-                lte: today,
-              },
-            },
-            take: 5,
-          }),
-          prisma.exerciseRecord.findMany({
-            where: {
-              userId: user.userId,
-              date: {
-                gte: yesterday,
-                lte: today,
-              },
-            },
-            take: 5,
-          }),
-          prisma.studyRecord.findMany({
-            where: {
-              userId: user.userId,
-              date: {
-                gte: yesterday,
-                lte: today,
-              },
-            },
-            take: 5,
-          }),
-        ],
-      );
-
-      const aiRequest: AIRequest = {
-        task: 'daily-briefing',
-        input: '生成每日简报',
-        context: {
-          userId: user.userId,
-          recentFinance: financeRecords,
-          recentExercise: exerciseRecords,
-          recentStudy: studyRecords,
-          date: today.toISOString(),
-        },
-      };
-
-      const response = await aiGateway.callAI(aiRequest);
-      return response;
-    },
-  );
 
   // 学习内容摘要生成
   fastify.post(
@@ -822,39 +596,4 @@ export default async function aiGatewayRoutes(fastify: FastifyInstance) {
     },
   );
 
-  // 运动推荐
-  fastify.get(
-    '/api/ai/exercise/recommend',
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      await requireAuth(request, reply);
-
-      const user: any = request.user;
-      const query = request.query as {
-        intensity?: string;
-        duration?: string;
-        location?: string;
-      };
-
-      // 获取用户历史运动记录
-      const recentExercise = await prisma.exerciseRecord.findMany({
-        where: { userId: user.userId },
-        orderBy: { date: 'desc' },
-        take: 10,
-      });
-
-      const aiRequest: AIRequest = {
-        task: 'exercise-recommend',
-        input: '生成运动推荐',
-        context: {
-          userId: user.userId,
-          preferences: query,
-          recentExercise,
-          currentTime: new Date().toISOString(),
-        },
-      };
-
-      const response = await aiGateway.callAI(aiRequest);
-      return response;
-    },
-  );
 }

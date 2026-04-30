@@ -76,9 +76,16 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="version-history">
+  <div class="version-history animate-fade-in">
     <div class="header">
-      <h3 class="text-lg font-semibold">历史版本</h3>
+      <div class="flex items-center gap-2 mb-1">
+        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+          <svg class="h-4 w-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-foreground">历史版本</h3>
+      </div>
       <p class="text-sm text-muted-foreground">选择版本查看或恢复</p>
     </div>
 
@@ -168,16 +175,20 @@ onMounted(() => {
   padding: 1rem;
   border-bottom: 1px solid hsl(var(--border));
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  background: linear-gradient(to right, transparent, hsl(var(--muted)/0.3));
 }
 
 .version-item:hover {
-  background-color: hsl(var(--muted));
+  background: linear-gradient(to right, hsl(var(--primary)/0.1), hsl(var(--muted)/0.5));
+  transform: translateX(4px);
+  border-left: 2px solid hsl(var(--primary)/0.5);
 }
 
 .version-item.selected {
-  background-color: hsl(var(--accent));
+  background: linear-gradient(to right, hsl(var(--primary)/0.2), hsl(var(--accent)/0.3));
   border-left: 4px solid hsl(var(--primary));
+  box-shadow: 0 2px 8px hsl(var(--primary)/0.1);
 }
 
 .version-header {
@@ -221,10 +232,16 @@ onMounted(() => {
 .tag-badge {
   display: inline-block;
   padding: 0.125rem 0.5rem;
-  background-color: hsl(var(--secondary));
+  background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--secondary)/0.8));
   color: hsl(var(--secondary-foreground));
   border-radius: 9999px;
   font-size: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.tag-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px hsl(var(--secondary)/0.3);
 }
 
 .version-detail {

@@ -64,51 +64,6 @@ const router = createRouter({
           component: () => import('../views/Tags.vue'),
           meta: { title: '标签云' },
         },
-        // 打卡系统
-        {
-          path: 'checkin',
-          redirect: '/app/checkin/finance',
-          component: () => import('../views/Checkin.vue'),
-          meta: { title: '打卡系统' },
-          children: [
-            {
-              path: 'finance',
-              name: 'checkin-finance',
-              component: () => import('../views/checkin/CheckinFinance.vue'),
-              meta: { title: '财务记账' },
-            },
-            {
-              path: 'exercise',
-              name: 'checkin-exercise',
-              component: () => import('../views/checkin/CheckinExercise.vue'),
-              meta: { title: '运动记录' },
-            },
-            {
-              path: 'study',
-              name: 'checkin-study',
-              component: () => import('../views/checkin/CheckinStudy.vue'),
-              meta: { title: '学习阅读' },
-            },
-            {
-              path: 'calendar',
-              name: 'checkin-calendar',
-              component: () => import('../views/checkin/Calendar.vue'),
-              meta: { title: '打卡日历' },
-            },
-            {
-              path: 'stats',
-              name: 'checkin-stats',
-              component: () => import('../views/checkin/Stats.vue'),
-              meta: { title: '统计图表' },
-            },
-            {
-              path: 'settings',
-              name: 'checkin-settings',
-              component: () => import('../views/checkin/CheckinSettings.vue'),
-              meta: { title: '设置' },
-            },
-          ],
-        },
       ],
     },
     // 重定向：访问旧路径自动转到 /app

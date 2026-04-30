@@ -115,7 +115,6 @@ const getItemClasses = (type: string) => {
     note: 'bg-gradient-to-r from-primary/3 to-primary/1 border-primary/10 hover:border-primary/30',
     idea: 'bg-gradient-to-r from-warm-50/30 to-warm-10/30 border-warm-200/30 hover:border-warm-400/30 dark:from-warm-800/20 dark:to-warm-800/10',
     tool: 'bg-gradient-to-r from-secondary/3 to-secondary/1 border-secondary/10 hover:border-secondary/30',
-    checkin: 'bg-gradient-to-r from-accent/3 to-accent/1 border-accent/10 hover:border-accent/30',
     dashboard: 'bg-gradient-to-r from-blue-50/30 to-blue-10/30 border-blue-200/30 hover:border-blue-400/30',
   };
   return `${base} ${typeClasses[type] || 'bg-card border-border hover:border-primary/20'}`;
@@ -127,7 +126,6 @@ const getPulseClasses = (type: string) => {
     note: 'bg-primary/20 animate-pulse',
     idea: 'bg-warm-400/20 animate-pulse',
     tool: 'bg-secondary/20 animate-pulse',
-    checkin: 'bg-accent/20 animate-pulse',
     dashboard: 'bg-blue-400/20 animate-pulse',
   };
   return typeClasses[type] || 'bg-primary/20 animate-pulse';
@@ -139,7 +137,6 @@ const getIconContainerClasses = (type: string) => {
     note: 'bg-primary/10 text-primary',
     idea: 'bg-warm-200 text-warm-600 dark:bg-warm-800/40 dark:text-warm-400',
     tool: 'bg-secondary/10 text-secondary',
-    checkin: 'bg-accent/10 text-accent',
     dashboard: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400',
   };
   return typeClasses[type] || 'bg-primary/10 text-primary';
@@ -151,7 +148,6 @@ const getIconClasses = (type: string) => {
     note: 'text-primary',
     idea: 'text-warm-600 dark:text-warm-400',
     tool: 'text-secondary',
-    checkin: 'text-accent',
     dashboard: 'text-blue-600 dark:text-blue-400',
   };
   return typeClasses[type] || 'text-primary';
@@ -163,7 +159,6 @@ const getTimeBadgeClasses = (type: string) => {
     note: 'bg-primary/10 text-primary',
     idea: 'bg-warm-200 text-warm-600 dark:bg-warm-800/40 dark:text-warm-400',
     tool: 'bg-secondary/10 text-secondary',
-    checkin: 'bg-accent/10 text-accent',
     dashboard: 'bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-400',
   };
   return typeClasses[type] || 'bg-primary/10 text-primary';
@@ -175,7 +170,6 @@ const getTypeBadgeClasses = (type: string) => {
     note: 'bg-primary/5 text-primary border border-primary/20',
     idea: 'bg-warm-50 text-warm-600 border border-warm-200 dark:bg-warm-800/30 dark:text-warm-400',
     tool: 'bg-secondary/5 text-secondary border border-secondary/20',
-    checkin: 'bg-accent/5 text-accent border border-accent/20',
     dashboard: 'bg-blue-50 text-blue-600 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400',
   };
   return typeClasses[type] || 'bg-primary/5 text-primary border border-primary/20';
@@ -187,7 +181,6 @@ const getArrowClasses = (type: string) => {
     note: 'text-primary',
     idea: 'text-warm-600',
     tool: 'text-secondary',
-    checkin: 'text-accent',
     dashboard: 'text-blue-500',
   };
   return typeClasses[type] || 'text-primary';
@@ -199,7 +192,6 @@ const getTypeLabel = (type: string) => {
     note: '笔记',
     idea: '灵感',
     tool: '工具',
-    checkin: '打卡',
     dashboard: '仪表盘',
   };
   return typeLabels[type] || '其他';

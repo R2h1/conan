@@ -186,7 +186,6 @@ import {
   Lightbulb,
   Palette,
   Search,
-  Calendar,
 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -234,6 +233,5 @@ const navItems = [
   { name: '工具集', path: '/tools', icon: Wrench },
   { name: '知识库', path: '/notes', icon: BookOpen },
   { name: '灵感圈', path: '/ideas', icon: Lightbulb },
-  { name: '打卡系统', path: '/checkin', icon: Calendar },
 ];
 </script>

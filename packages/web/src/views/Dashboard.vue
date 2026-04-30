@@ -211,10 +211,6 @@ import {
   RefreshCw,
   X,
   Info,
-  Calendar,
-  Clock,
-  TrendingUp,
-  Users,
 } from 'lucide-vue-next';
 import StatCard from '@/components/dashboard/StatCard.vue';
 import QuickActions from '@/components/dashboard/QuickActions.vue';
@@ -295,7 +291,13 @@ const loadPopularTags = async () => {
 };
 
 // 快捷操作
-const quickActions = [
+const quickActions: Array<{
+  label: string;
+  description: string;
+  href: string;
+  icon: any;
+  color: 'primary' | 'warm' | 'secondary' | 'accent';
+}> = [
   {
     label: '新建笔记',
     description: '创建新的 Markdown 笔记',
@@ -316,13 +318,6 @@ const quickActions = [
     href: '/app/tools',
     icon: Wrench,
     color: 'secondary',
-  },
-  {
-    label: '打卡记录',
-    description: '查看今日打卡',
-    href: '/app/checkin',
-    icon: Calendar,
-    color: 'accent',
   },
 ];
 
@@ -379,7 +374,6 @@ const getIconForActivity = (type: string) => {
     note: BookOpen,
     idea: Lightbulb,
     tool: Wrench,
-    checkin: Calendar,
   };
   return iconMap[type] || BookOpen;
 };
@@ -407,19 +401,6 @@ const handleTagClick = (tag: TagCloudItem) => {
   }
 };
 
-const handleRecentClick = (item: typeof recentItems.value[0]) => {
-  if (item.type === 'note' || item.description.includes('知识库')) {
-    router.push('/app/notes');
-  } else if (item.type === 'idea' || item.description.includes('灵感箱')) {
-    router.push('/app/ideas');
-  } else if (item.type === 'tool' || item.description.includes('工具集')) {
-    router.push('/app/tools');
-  } else if (item.type === 'checkin' || item.description.includes('打卡')) {
-    router.push('/app/checkin');
-  } else if (item.type === 'dashboard') {
-    router.push('/app');
-  }
-};
 
 const handleQuickSave = async () => {
   try {
@@ -457,7 +438,6 @@ const userHabits = ref({
     notes: 0,
     ideas: 0,
     tools: 0,
-    checkin: 0,
   },
   usagePatterns: {
     morning: 0,
@@ -514,7 +494,7 @@ const updateVisitStats = () => {
 };
 
 // 记录功能使用
-const recordFeatureUse = (feature: 'notes' | 'ideas' | 'tools' | 'checkin') => {
+const recordFeatureUse = (feature: 'notes' | 'ideas' | 'tools') => {
   userHabits.value.favoriteFeatures[feature] += 1;
   userHabits.value.recentActions.unshift(`${feature}-${Date.now()}`);
   // 只保留最近10个动作
@@ -547,7 +527,6 @@ const personalizedRecommendation = computed(() => {
       : '今天有什么新的想法需要记录下来吗？',
     ideas: '灵感稍纵即逝，现在有什么创意想要捕捉吗？',
     tools: '需要处理一些数据吗？试试JSON格式化工具。',
-    checkin: '记得完成今日打卡，保持好习惯！',
   };
 
   return recommendations[feature] || '继续探索Conan的更多功能吧！';
@@ -598,9 +577,6 @@ const enhancedHandleRecentClick = (item: typeof recentItems.value[0]) => {
   } else if (item.type === 'tool' || item.description.includes('工具集')) {
     recordFeatureUse('tools');
     router.push('/app/tools');
-  } else if (item.type === 'checkin' || item.description.includes('打卡')) {
-    recordFeatureUse('checkin');
-    router.push('/app/checkin');
   } else if (item.type === 'dashboard') {
     router.push('/app');
   }

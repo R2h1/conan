@@ -16,12 +16,6 @@ model User {
   ideas            Idea[]
   recentActivities RecentActivity[]
   noteVersions     NoteVersion[]
-  // 打卡系统关系字段
-  financeRecords   FinanceRecord[]
-  exerciseRecords  ExerciseRecord[]
-  studyRecords     StudyRecord[]
-  checkinSummaries CheckinSummary[]
-  checkinPreference CheckinPreference? @relation(name: "checkinPreference")
   aiUsageLogs      AIUsageLog[]
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
@@ -37,7 +31,6 @@ model Note {
   isFavorite Boolean @default(false)
   versions      NoteVersion[]
   currentVersion Int @default(1)
-  studyRecords   StudyRecord[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -84,97 +77,6 @@ model NoteVersion {
   @@unique([noteId, version])  // 确保每个笔记的版本号唯一
 }
 
-// ==================== 打卡系统模型 ====================
-
-// 财务记账记录
-model FinanceRecord {
-  id        Int      @id @default(autoincrement())
-  type      String   // "income" 或 "expense"
-  amount    Float
-  category  String   // 餐饮、交通、购物...
-  account   String   // 现金、微信、支付宝...
-  note      String?
-  date      DateTime
-  tags      String?  // 逗号分隔
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId, date])
-  @@index([userId, type])
-}
-
-// 运动记录
-model ExerciseRecord {
-  id        Int      @id @default(autoincrement())
-  type      String   // 跑步、骑行...
-  duration  Int      // 分钟
-  distance  Float?
-  calories  Int?
-  heartRate Int?
-  note      String?
-  date      DateTime
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId, date])
-}
-
-// 学习阅读记录
-model StudyRecord {
-  id        Int      @id @default(autoincrement())
-  type      String   // "study" 或 "read"
-  content   String   // 书名/课程名
-  duration  Int      // 分钟
-  pages     Int?
-  progress  Float?   // 0-100
-  noteId    Int?     // 关联笔记ID（可选）
-  note      Note?    @relation(fields: [noteId], references: [id])
-  summary   String?  // AI 生成的摘要
-  date      DateTime
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId, date])
-  @@index([userId, content])
-}
-
-// 打卡日历摘要（性能优化，避免每次查询多表）
-model CheckinSummary {
-  id        Int      @id @default(autoincrement())
-  date      DateTime
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  hasFinance Boolean @default(false)
-  hasExercise Boolean @default(false)
-  hasStudy   Boolean @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([userId, date])
-  @@index([userId, date])
-}
-
-// 用户偏好（分类自定义、提醒时间等）
-model CheckinPreference {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @unique
-  user      User     @relation(fields: [userId], references: [id], name: "checkinPreference")
-  remindTime String? // "08:00" 每日提醒时间
-  financeCategories String? // JSON 数组
-  exerciseTypes     String? // JSON 数组
-  studyContentList  String? // JSON 数组
-  aiEnabled Boolean  @default(true)
-  wechatEnabled Boolean @default(false)
-  wechatWebhook  String? // 用户自己的企业微信机器人地址
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
 
 // AI 使用日志
 model AIUsageLog {

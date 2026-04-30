@@ -56,8 +56,8 @@ const handleToggleFavorite = async () => {
     variant="ghost"
     size="icon"
     :class="[
-      'h-6 w-6 transition-all',
-      localIsFavorite ? 'text-yellow-500 hover:text-yellow-600' : 'text-muted-foreground hover:text-foreground'
+      'h-6 w-6 transition-all duration-200',
+      localIsFavorite ? 'text-[hsl(var(--warning))] hover:opacity-80' : 'text-muted-foreground hover:text-foreground'
     ]"
     @click.stop="handleToggleFavorite"
     :disabled="isLoading"

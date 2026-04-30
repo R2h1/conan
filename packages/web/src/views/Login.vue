@@ -37,9 +37,9 @@
                 type="email"
                 placeholder="your@email.com"
                 required
-                class="w-full border-input focus:border-primary focus:ring-primary/20 transition-all duration-200 pl-10"
+                class="w-full border-input focus:border-primary focus:ring-primary/20 transition-all duration-200 pl-9"
               />
-              <div class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors duration-200">
+              <div class="absolute left-2.5 top-1/2 -translate-y-[calc(50%-0.5px)] text-muted-foreground group-focus-within:text-primary transition-colors duration-200">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89-5.26a2 2 0 012.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                 </svg>
@@ -55,9 +55,9 @@
                 type="password"
                 placeholder="输入密码"
                 required
-                class="w-full border-input focus:border-primary focus:ring-primary/20 transition-all duration-200 pl-10"
+                class="w-full border-input focus:border-primary focus:ring-primary/20 transition-all duration-200 pl-9"
               />
-              <div class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors duration-200">
+              <div class="absolute left-2.5 top-1/2 -translate-y-[calc(50%-0.5px)] text-muted-foreground group-focus-within:text-primary transition-colors duration-200">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                 </svg>
