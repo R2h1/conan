@@ -6,7 +6,7 @@ const api = axios.create({
 });
 
 // 活动类型
-export type ActivityType = 'dashboard' | 'note' | 'idea' | 'tool';
+export type ActivityType = 'dashboard' | 'note' | 'tool';
 
 // 活动记录请求接口
 export interface ActivityCreateRequest {
@@ -55,12 +55,6 @@ export const recordPageVisit = (page: string, title?: string) => {
       title: title || '知识库',
       description: '访问了笔记/知识库页面',
       icon: 'BookOpen',
-    },
-    '/app/ideas': {
-      type: 'idea',
-      title: title || '灵感箱',
-      description: '访问了灵感箱页面',
-      icon: 'Lightbulb',
     },
     '/app/tools': {
       type: 'tool',

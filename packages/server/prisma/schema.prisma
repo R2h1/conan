@@ -13,7 +13,6 @@ model User {
   email            String           @unique      // 邮箱
   password         String                          // bcrypt 哈希
   notes            Note[]
-  ideas            Idea[]
   recentActivities RecentActivity[]
   noteVersions     NoteVersion[]
   aiUsageLogs      AIUsageLog[]
@@ -35,19 +34,6 @@ model Note {
   updatedAt DateTime @updatedAt
 }
 
-model Idea {
-  id          Int      @id @default(autoincrement())
-  title       String
-  content     String
-  category    String?  // 分类：项目/学习/生活等
-  tags        String   // 逗号分隔的标签
-  priority    String   @default("medium") // low, medium, high
-  completed   Boolean  @default(false)
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
 
 model RecentActivity {
   id          Int      @id @default(autoincrement())

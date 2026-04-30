@@ -9,7 +9,7 @@
       </div>
 
       <!-- 关键统计数据 - 不对称网格布局 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         <div class="md:col-span-1">
           <StatCard
             label="笔记总数"
@@ -20,18 +20,6 @@
             variant="accent"
             :progress="65"
             description="本月新增 12 篇"
-          />
-        </div>
-        <div class="md:col-span-1">
-          <StatCard
-            label="灵感记录"
-            :value="stats.ideas"
-            :icon="Lightbulb"
-            :trend="5"
-            color="warm"
-            variant="gradient"
-            :progress="45"
-            description="本周新增 5 条"
           />
         </div>
         <div class="md:col-span-1">
@@ -257,7 +245,6 @@ const dailyTip = computed(() => {
 // 统计数据
 const stats = ref({
   notes: 0,
-  ideas: 0,
   weekVisits: 0,
   toolUses: 0,
 });
@@ -268,7 +255,6 @@ const loadStats = async () => {
     const data = await getStats();
     stats.value = {
       notes: data.notes,
-      ideas: data.ideas,
       weekVisits: data.weekNotes,
       toolUses: data.toolUses,
     };
@@ -304,13 +290,6 @@ const quickActions: Array<{
     href: '/app/notes',
     icon: FilePlus,
     color: 'primary',
-  },
-  {
-    label: '记录灵感',
-    description: '快速捕捉灵感',
-    href: '/app/ideas',
-    icon: Sparkles,
-    color: 'warm',
   },
   {
     label: '工具集',
@@ -397,7 +376,7 @@ const handleTagClick = (tag: TagCloudItem) => {
   if (tag.type === 'note' || tag.type === 'both') {
     router.push(`/app/notes?tag=${encodeURIComponent(tag.name)}`);
   } else if (tag.type === 'idea') {
-    router.push(`/app/ideas?tag=${encodeURIComponent(tag.name)}`);
+    router.push(`/app/notes?tag=${encodeURIComponent(tag.name)}`);
   }
 };
 
@@ -436,7 +415,6 @@ const userHabits = ref({
   lastVisit: '',
   favoriteFeatures: {
     notes: 0,
-    ideas: 0,
     tools: 0,
   },
   usagePatterns: {
@@ -494,7 +472,7 @@ const updateVisitStats = () => {
 };
 
 // 记录功能使用
-const recordFeatureUse = (feature: 'notes' | 'ideas' | 'tools') => {
+const recordFeatureUse = (feature: 'notes' | 'tools') => {
   userHabits.value.favoriteFeatures[feature] += 1;
   userHabits.value.recentActions.unshift(`${feature}-${Date.now()}`);
   // 只保留最近10个动作
@@ -525,7 +503,6 @@ const personalizedRecommendation = computed(() => {
     notes: hour < 12
       ? '早上是整理笔记的好时机，试试清理一下旧笔记？'
       : '今天有什么新的想法需要记录下来吗？',
-    ideas: '灵感稍纵即逝，现在有什么创意想要捕捉吗？',
     tools: '需要处理一些数据吗？试试JSON格式化工具。',
   };
 
@@ -572,8 +549,8 @@ const enhancedHandleRecentClick = (item: typeof recentItems.value[0]) => {
     recordFeatureUse('notes');
     router.push('/app/notes');
   } else if (item.type === 'idea' || item.description.includes('灵感箱')) {
-    recordFeatureUse('ideas');
-    router.push('/app/ideas');
+    recordFeatureUse('notes');
+    router.push('/app/notes');
   } else if (item.type === 'tool' || item.description.includes('工具集')) {
     recordFeatureUse('tools');
     router.push('/app/tools');

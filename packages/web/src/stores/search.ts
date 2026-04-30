@@ -1,12 +1,11 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { getNotes } from '@/api/notes';
-import { getIdeas } from '@/api/ideas';
 import { useToast } from '@/components/ui/toast';
 
 export interface SearchResult {
   id: number;
-  type: 'note' | 'idea' | 'tool';
+  type: 'note' | 'tool';
   title: string;
   description: string;
   icon?: string;
@@ -123,10 +122,7 @@ export const useSearchStore = defineStore('search', () => {
 
     loading.value = true;
     try {
-      const [notes, ideas] = await Promise.all([
-        getNotes({ search: searchQuery }),
-        getIdeas({ search: searchQuery }),
-      ]);
+      const notes = await getNotes({ search: searchQuery });
 
       const searchResults: SearchResult[] = [];
 
@@ -141,19 +137,6 @@ export const useSearchStore = defineStore('search', () => {
           url: `/app/notes?note=${note.id}`,
           isFavorite: note.isFavorite,
           data: note,
-        });
-      });
-
-      // 添加灵感结果
-      ideas.forEach((idea) => {
-        searchResults.push({
-          id: idea.id,
-          type: 'idea',
-          title: idea.title,
-          description: idea.content.slice(0, 80) + (idea.content.length > 80 ? '...' : ''),
-          icon: 'lightbulb',
-          url: `/app/ideas?idea=${idea.id}`,
-          data: idea,
         });
       });
 

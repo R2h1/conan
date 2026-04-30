@@ -4,7 +4,6 @@ import cookie from '@fastify/cookie';
 import jwt from '@fastify/jwt';
 import { PrismaClient } from '@prisma/client/index.js';
 import authRoutes from './routes/auth.js';
-import ideaRoutes from './routes/ideas.js';
 import activitiesRoutes from './routes/activities.js';
 import aiGatewayRoutes from './routes/ai-gateway.js';
 import { requireAuth } from './plugins/auth-middleware.js';
@@ -43,7 +42,6 @@ fastify.get('/api/stats', async (request, reply) => {
   const user: any = request.user;
 
   const noteCount = await prisma.note.count({ where: { userId: user.userId } });
-  const ideaCount = await prisma.idea.count({ where: { userId: user.userId } });
 
   const oneWeekAgo = new Date();
   oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
@@ -51,11 +49,9 @@ fastify.get('/api/stats', async (request, reply) => {
     where: { userId: user.userId, createdAt: { gte: oneWeekAgo } },
   });
 
-  return { notes: noteCount, ideas: ideaCount, weekNotes, toolUses: 0 };
+  return { notes: noteCount, weekNotes, toolUses: 0 };
 });
 
-// 注册灵感路由
-fastify.register(ideaRoutes);
 
 // 注册活动记录路由
 fastify.register(activitiesRoutes);
@@ -556,20 +552,14 @@ fastify.get('/api/tags/cloud', async (request, reply) => {
   const limit = query.limit ? Math.max(1, parseInt(query.limit, 10) || 50) : 50;
   const minCount = query.minCount ? Math.max(1, parseInt(query.minCount, 10) || 1) : 1;
 
-  // 获取当前用户的所有笔记和灵感
-  const [notes, ideas] = await Promise.all([
-    prisma.note.findMany({
-      where: { userId: user.userId },
-      select: { tags: true },
-    }),
-    prisma.idea.findMany({
-      where: { userId: user.userId },
-      select: { tags: true },
-    }),
-  ]);
+  // 获取当前用户的所有笔记（灵感功能已移除）
+  const notes = await prisma.note.findMany({
+    where: { userId: user.userId },
+    select: { tags: true },
+  });
 
   // 统计标签频率
-  const tagStats = new Map<string, { noteCount: number; ideaCount: number; total: number }>();
+  const tagStats = new Map<string, { noteCount: number; total: number }>();
 
   // 统计笔记标签
   notes.forEach(note => {
@@ -577,7 +567,7 @@ fastify.get('/api/tags/cloud', async (request, reply) => {
       const tags = note.tags.split(',').filter(tag => tag.trim() !== '');
       tags.forEach(tag => {
         const trimmedTag = tag.trim();
-        const stats = tagStats.get(trimmedTag) || { noteCount: 0, ideaCount: 0, total: 0 };
+        const stats = tagStats.get(trimmedTag) || { noteCount: 0, total: 0 };
         stats.noteCount++;
         stats.total++;
         tagStats.set(trimmedTag, stats);
@@ -585,19 +575,6 @@ fastify.get('/api/tags/cloud', async (request, reply) => {
     }
   });
 
-  // 统计灵感标签
-  ideas.forEach(idea => {
-    if (idea.tags) {
-      const tags = idea.tags.split(',').filter(tag => tag.trim() !== '');
-      tags.forEach(tag => {
-        const trimmedTag = tag.trim();
-        const stats = tagStats.get(trimmedTag) || { noteCount: 0, ideaCount: 0, total: 0 };
-        stats.ideaCount++;
-        stats.total++;
-        tagStats.set(trimmedTag, stats);
-      });
-    }
-  });
 
   // 转换为数组并排序
   const tagsArray = Array.from(tagStats.entries())
@@ -605,9 +582,8 @@ fastify.get('/api/tags/cloud', async (request, reply) => {
       name,
       count: stats.total,
       noteCount: stats.noteCount,
-      ideaCount: stats.ideaCount,
-      type: (stats.noteCount > 0 && stats.ideaCount > 0) ? 'both' :
-            (stats.noteCount > 0) ? 'note' : 'idea',
+      ideaCount: 0,
+      type: 'note',
     }))
     .filter(tag => tag.count >= minCount)
     .sort((a, b) => b.count - a.count)

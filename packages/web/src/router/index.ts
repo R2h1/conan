@@ -53,12 +53,6 @@ const router = createRouter({
           meta: { title: '知识库' },
         },
         {
-          path: 'ideas',
-          name: 'ideas',
-          component: () => import('../views/Ideas.vue'),
-          meta: { title: '灵感箱' },
-        },
-        {
           path: 'tags',
           name: 'tags',
           component: () => import('../views/Tags.vue'),
@@ -110,7 +104,6 @@ router.beforeEach(async (to) => {
     const pagePaths = [
       '/app',
       '/app/notes',
-      '/app/ideas',
       '/app/tools',
       '/app/tags',
     ];

@@ -183,7 +183,6 @@ import {
   LayoutDashboard,
   Wrench,
   BookOpen,
-  Lightbulb,
   Palette,
   Search,
 } from 'lucide-vue-next';
@@ -232,6 +231,5 @@ const navItems = [
   { name: '仪表盘', path: '/dashboard', icon: LayoutDashboard },
   { name: '工具集', path: '/tools', icon: Wrench },
   { name: '知识库', path: '/notes', icon: BookOpen },
-  { name: '灵感圈', path: '/ideas', icon: Lightbulb },
 ];
 </script>
