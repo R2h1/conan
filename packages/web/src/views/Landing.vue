@@ -199,7 +199,7 @@
               class="text-lg sm:text-xl lg:text-2xl text-muted-foreground max-w-3xl mx-auto mb-10 animate-fade-in-up"
               style="animation-delay: 0.1s"
             >
-              集工具、知识、灵感于一体，让数字生活更温暖、更高效、更愉悦
+              专注于实用工具，让数字生活更温暖、更高效、更愉悦
             </p>
 
             <!-- 行动号召按钮 -->
@@ -326,11 +326,11 @@
               style="animation-delay: 0.1s"
             >
               Conan
-              结合了实用工具、个人知识管理和灵感收集，为你提供全方位的数字工作伴侣
+              专注于实用工具，为你提供高效温暖的数字工作伴侣
             </p>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="flex justify-center">
             <!-- 工具卡片 -->
             <div
               class="group relative card-warm animate-fade-in-up focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
@@ -407,167 +407,6 @@
                 <!-- 悬停指示器 -->
                 <div
                   class="h-1 bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transform scale-x-0 group-hover:scale-x-100 transition-all duration-500"
-                  aria-hidden="true"
-                ></div>
-              </div>
-            </div>
-
-            <!-- 知识库卡片 -->
-            <div
-              class="group relative card-warm animate-fade-in-up focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
-              style="animation-delay: 0.3s"
-              role="article"
-              aria-labelledby="knowledge-card-title"
-              tabindex="0"
-            >
-              <div
-                class="absolute inset-0 bg-gradient-to-br from-secondary/5 via-transparent to-accent/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              ></div>
-              <div
-                class="relative p-8 rounded-2xl border border-border/50 bg-gradient-to-b from-card to-card/80 backdrop-blur-sm overflow-hidden"
-              >
-                <!-- 装饰性背景 -->
-                <div
-                  class="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-2xl -translate-y-16 translate-x-16"
-                  aria-hidden="true"
-                ></div>
-
-                <!-- 图标区域 -->
-                <div class="relative mb-6">
-                  <div
-                    class="absolute inset-0 bg-secondary/10 rounded-xl blur-md group-hover:blur-lg transition-all duration-500"
-                    aria-hidden="true"
-                  ></div>
-                  <div
-                    class="relative inline-flex items-center justify-center p-4 bg-gradient-to-br from-secondary/15 to-secondary/5 rounded-xl border border-secondary/20"
-                  >
-                    <BookOpen
-                      class="h-10 w-10 text-secondary transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12"
-                      aria-hidden="true"
-                    />
-                  </div>
-                </div>
-
-                <!-- 内容 -->
-                <h3
-                  id="knowledge-card-title"
-                  class="text-xl font-semibold mb-3 group-hover:text-secondary transition-colors duration-300"
-                >
-                  个人知识库
-                </h3>
-                <p class="text-muted-foreground mb-6">
-                  Markdown
-                  笔记、代码片段、标签分类，构建你的第二大脑，让知识管理变得简单有趣。
-                </p>
-
-                <!-- 功能列表 -->
-                <ul class="space-y-2 mb-6" aria-label="知识库功能">
-                  <li class="flex items-center gap-2 text-sm">
-                    <CheckCircle
-                      class="h-4 w-4 text-success"
-                      aria-hidden="true"
-                    />
-                    <span>智能标签系统</span>
-                  </li>
-                  <li class="flex items-center gap-2 text-sm">
-                    <CheckCircle
-                      class="h-4 w-4 text-success"
-                      aria-hidden="true"
-                    />
-                    <span>全文搜索</span>
-                  </li>
-                  <li class="flex items-center gap-2 text-sm">
-                    <CheckCircle
-                      class="h-4 w-4 text-success"
-                      aria-hidden="true"
-                    />
-                    <span>版本历史</span>
-                  </li>
-                </ul>
-
-                <!-- 悬停指示器 -->
-                <div
-                  class="h-1 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-0 group-hover:opacity-100 transform scale-x-0 group-hover:scale-x-100 transition-all duration-500"
-                  aria-hidden="true"
-                ></div>
-              </div>
-            </div>
-
-            <!-- 灵感卡片 -->
-            <div
-              class="group relative card-warm animate-fade-in-up focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
-              style="animation-delay: 0.4s"
-              role="article"
-              aria-labelledby="inspiration-card-title"
-              tabindex="0"
-            >
-              <div
-                class="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-primary/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              ></div>
-              <div
-                class="relative p-8 rounded-2xl border border-border/50 bg-gradient-to-b from-card to-card/80 backdrop-blur-sm overflow-hidden"
-              >
-                <!-- 装饰性背景 -->
-                <div
-                  class="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full blur-2xl -translate-y-16 translate-x-16"
-                  aria-hidden="true"
-                ></div>
-
-                <!-- 图标区域 -->
-                <div class="relative mb-6">
-                  <div
-                    class="absolute inset-0 bg-accent/10 rounded-xl blur-md group-hover:blur-lg transition-all duration-500"
-                    aria-hidden="true"
-                  ></div>
-                  <div
-                    class="relative inline-flex items-center justify-center p-4 bg-gradient-to-br from-accent/15 to-accent/5 rounded-xl border border-accent/20"
-                  >
-                    <Lightbulb
-                      class="h-10 w-10 text-accent transition-transform duration-500 group-hover:scale-110 group-hover:rotate-12"
-                      aria-hidden="true"
-                    />
-                  </div>
-                </div>
-
-                <!-- 内容 -->
-                <h3
-                  id="inspiration-card-title"
-                  class="text-xl font-semibold mb-3 group-hover:text-accent transition-colors duration-300"
-                >
-                  灵感收集箱
-                </h3>
-                <p class="text-muted-foreground mb-6">
-                  快速记录想法、链接、待办事项，让灵感不再流失，随时随地捕捉创意火花。
-                </p>
-
-                <!-- 功能列表 -->
-                <ul class="space-y-2 mb-6" aria-label="灵感收集功能">
-                  <li class="flex items-center gap-2 text-sm">
-                    <CheckCircle
-                      class="h-4 w-4 text-success"
-                      aria-hidden="true"
-                    />
-                    <span>快速记录</span>
-                  </li>
-                  <li class="flex items-center gap-2 text-sm">
-                    <CheckCircle
-                      class="h-4 w-4 text-success"
-                      aria-hidden="true"
-                    />
-                    <span>智能分类</span>
-                  </li>
-                  <li class="flex items-center gap-2 text-sm">
-                    <CheckCircle
-                      class="h-4 w-4 text-success"
-                      aria-hidden="true"
-                    />
-                    <span>灵感提醒</span>
-                  </li>
-                </ul>
-
-                <!-- 悬停指示器 -->
-                <div
-                  class="h-1 bg-gradient-to-r from-transparent via-accent to-transparent opacity-0 group-hover:opacity-100 transform scale-x-0 group-hover:scale-x-100 transition-all duration-500"
                   aria-hidden="true"
                 ></div>
               </div>
@@ -852,7 +691,7 @@
                     "
                   </div>
                   <p class="text-muted-foreground italic">
-                    作为一个设计师，我特别注重工具的美观度。Conan的温暖友好设计让我爱不释手，笔记功能帮我整理了所有项目灵感。
+                    作为一个设计师，我特别注重工具的美观度。Conan的温暖友好设计让我爱不释手，工具集帮我提高了工作效率。
                   </p>
                   <div
                     class="absolute -bottom-3 -right-3 text-4xl text-secondary/20"
@@ -1138,8 +977,6 @@ import {
   Globe,
   ArrowRight,
   Wrench,
-  BookOpen,
-  Lightbulb,
   Rocket,
   Eye,
   ChevronDown,
