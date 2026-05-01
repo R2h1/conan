@@ -182,7 +182,6 @@ import {
   ChevronRight,
   LayoutDashboard,
   Wrench,
-  BookOpen,
   Palette,
   Search,
 } from 'lucide-vue-next';
@@ -230,6 +229,5 @@ const openSearch = () => {
 const navItems = [
   { name: '仪表盘', path: '/dashboard', icon: LayoutDashboard },
   { name: '工具集', path: '/tools', icon: Wrench },
-  { name: '知识库', path: '/notes', icon: BookOpen },
 ];
 </script>

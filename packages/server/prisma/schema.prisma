@@ -12,27 +12,12 @@ model User {
   name             String           @unique      // 用户名
   email            String           @unique      // 邮箱
   password         String                          // bcrypt 哈希
-  notes            Note[]
   recentActivities RecentActivity[]
-  noteVersions     NoteVersion[]
   aiUsageLogs      AIUsageLog[]
   createdAt        DateTime         @default(now())
   updatedAt        DateTime         @updatedAt
 }
 
-model Note {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  tags      String
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  isFavorite Boolean @default(false)
-  versions      NoteVersion[]
-  currentVersion Int @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
 
 
 model RecentActivity {
@@ -47,21 +32,6 @@ model RecentActivity {
   createdAt   DateTime @default(now())
 }
 
-model NoteVersion {
-  id          Int      @id @default(autoincrement())
-  noteId      Int
-  note        Note     @relation(fields: [noteId], references: [id])
-  title       String
-  content     String
-  tags        String   // 逗号分隔的标签字符串
-  version     Int      // 版本号，从1开始递增
-  userId      Int
-  user        User     @relation(fields: [userId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@unique([noteId, version])  // 确保每个笔记的版本号唯一
-}
 
 
 // AI 使用日志

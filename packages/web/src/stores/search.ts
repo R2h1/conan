@@ -1,16 +1,14 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { getNotes } from '@/api/notes';
 import { useToast } from '@/components/ui/toast';
 
 export interface SearchResult {
   id: number;
-  type: 'note' | 'tool';
+  type: 'tool';
   title: string;
   description: string;
   icon?: string;
   url: string;
-  isFavorite?: boolean; // 仅对笔记有效
   data?: any; // 原始数据，用于跳转等
 }
 
@@ -122,23 +120,7 @@ export const useSearchStore = defineStore('search', () => {
 
     loading.value = true;
     try {
-      const notes = await getNotes({ search: searchQuery });
-
       const searchResults: SearchResult[] = [];
-
-      // 添加笔记结果
-      notes.forEach((note) => {
-        searchResults.push({
-          id: note.id,
-          type: 'note',
-          title: note.title || '无标题',
-          description: note.content.slice(0, 80) + (note.content.length > 80 ? '...' : ''),
-          icon: 'file-text',
-          url: `/app/notes?note=${note.id}`,
-          isFavorite: note.isFavorite,
-          data: note,
-        });
-      });
 
       // 添加工具结果（本地搜索）
       const matchedTools = tools.value.filter(

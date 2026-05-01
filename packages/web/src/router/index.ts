@@ -47,12 +47,6 @@ const router = createRouter({
           meta: { title: '工具集' },
         },
         {
-          path: 'notes',
-          name: 'notes',
-          component: () => import('../views/Notes.vue'),
-          meta: { title: '知识库' },
-        },
-        {
           path: 'tags',
           name: 'tags',
           component: () => import('../views/Tags.vue'),
@@ -103,7 +97,6 @@ router.beforeEach(async (to) => {
     // 只记录主要页面访问
     const pagePaths = [
       '/app',
-      '/app/notes',
       '/app/tools',
       '/app/tags',
     ];

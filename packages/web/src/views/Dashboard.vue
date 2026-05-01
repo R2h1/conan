@@ -8,21 +8,9 @@
         <p class="text-lg text-muted-foreground">{{ enhancedPersonalizedMessage }}</p>
       </div>
 
-      <!-- 关键统计数据 - 不对称网格布局 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-        <div class="md:col-span-1">
-          <StatCard
-            label="笔记总数"
-            :value="stats.notes"
-            :icon="BookOpen"
-            :trend="12"
-            color="primary"
-            variant="accent"
-            :progress="65"
-            description="本月新增 12 篇"
-          />
-        </div>
-        <div class="md:col-span-1">
+      <!-- 关键统计数据 - 对称布局 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div>
           <StatCard
             label="本周访问"
             :value="stats.weekVisits"
@@ -33,7 +21,7 @@
             description="较上周增长 15%"
           />
         </div>
-        <div class="md:col-span-1">
+        <div>
           <StatCard
             label="工具使用"
             :value="stats.toolUses"
@@ -48,10 +36,10 @@
       </div>
     </div>
 
-    <!-- 中部区域：重要功能入口和热门标签 -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+    <!-- 中部区域：重要功能入口 -->
+    <div class="mb-8">
       <!-- 快捷操作 - 视觉焦点区域 -->
-      <div class="lg:col-span-2">
+      <div>
         <div class="card p-6 bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/10">
           <div class="flex items-center justify-between mb-6">
             <div>
@@ -65,37 +53,10 @@
           <QuickActions :actions="quickActions" />
         </div>
       </div>
-
-      <!-- 热门标签云 -->
-      <div v-if="popularTags.length" class="lg:col-span-1">
-        <div class="card p-6 h-full">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-xl font-semibold">热门标签</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              class="text-xs"
-              @click="router.push('/app/tags')"
-            >
-              查看全部
-            </Button>
-          </div>
-          <TagCloud
-            :tags="popularTags"
-            :max-font-size="20"
-            :min-font-size="12"
-            color-scheme="frequency"
-            @click="handleTagClick"
-          />
-          <div class="mt-4 text-sm text-muted-foreground">
-            <span>点击标签查看相关内容</span>
-          </div>
-        </div>
-      </div>
     </div>
 
-    <!-- 底部区域：最近活动和快速记录 -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- 底部区域：最近活动 -->
+    <div>
       <!-- 最近访问 -->
       <div class="card p-6">
         <div class="flex items-center justify-between mb-4">
@@ -117,50 +78,9 @@
         />
         <div v-if="!recentItems.length" class="text-center py-8">
           <div class="text-muted-foreground mb-2">暂无最近访问记录</div>
-          <Button variant="outline" size="sm" @click="router.push('/app/notes')">
+          <Button variant="outline" size="sm" @click="router.push('/app/tools')">
             开始探索
           </Button>
-        </div>
-      </div>
-
-      <!-- 快速记录 -->
-      <div class="card p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-xl font-semibold">快速记录</h3>
-          <Button
-            variant="ghost"
-            size="sm"
-            @click="clearQuickNote"
-          >
-            <X class="h-4 w-4" />
-          </Button>
-        </div>
-        <div class="space-y-4">
-          <Textarea
-            v-model="quickNote"
-            placeholder="有什么想法、待办或链接想要记录？"
-            rows="4"
-            class="resize-none transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20"
-          />
-          <div class="flex items-center justify-between">
-            <Input
-              v-model="quickTags"
-              placeholder="标签（逗号分隔）"
-              class="max-w-[200px] transition-all duration-200 focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            <Button
-              @click="handleQuickSave"
-              :disabled="!quickNote.trim()"
-              class="transition-all duration-200 hover:scale-105"
-            >
-              <Save class="h-4 w-4 mr-1" />
-              保存
-            </Button>
-          </div>
-          <div class="text-xs text-muted-foreground flex items-center gap-1">
-            <Info class="h-3 w-3" />
-            支持 Markdown 语法
-          </div>
         </div>
       </div>
     </div>
@@ -183,30 +103,19 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useToast } from '@/components/ui/toast';
 import { getStats } from '@/api/stats';
-import { createNote } from '@/api/notes';
 import { getRecentActivities } from '@/api/activities';
-import { getPopularTags } from '@/api/tags';
-import type { TagCloudItem } from '@/api/tags';
 import {
-  BookOpen,
   Lightbulb,
   Activity,
   Wrench,
-  FilePlus,
   Sparkles,
-  Save,
   LayoutDashboard,
   RefreshCw,
-  X,
-  Info,
 } from 'lucide-vue-next';
 import StatCard from '@/components/dashboard/StatCard.vue';
 import QuickActions from '@/components/dashboard/QuickActions.vue';
 import RecentActivity from '@/components/dashboard/RecentActivity.vue';
-import TagCloud from '@/components/tags/TagCloud.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 
 const router = useRouter();
 const { toast } = useToast();
@@ -233,9 +142,7 @@ const personalizedMessage = computed(() => {
 // 每日小贴士
 const dailyTip = computed(() => {
   const tips = [
-    '使用快捷键 Ctrl+K 可以快速搜索笔记和工具。',
-    '尝试给笔记添加标签，方便后续查找和整理。',
-    '快速记录功能支持 Markdown 语法，试试看！',
+    '使用快捷键 Ctrl+K 可以快速搜索工具。',
     '点击统计卡片可以查看详细的数据趋势。',
     '深色模式可以在主题设置中切换，保护眼睛。',
   ];
@@ -244,7 +151,6 @@ const dailyTip = computed(() => {
 
 // 统计数据
 const stats = ref({
-  notes: 0,
   weekVisits: 0,
   toolUses: 0,
 });
@@ -254,7 +160,6 @@ const loadStats = async () => {
   try {
     const data = await getStats();
     stats.value = {
-      notes: data.notes,
       weekVisits: data.weekNotes,
       toolUses: data.toolUses,
     };
@@ -263,18 +168,6 @@ const loadStats = async () => {
   }
 };
 
-// 热门标签
-const popularTags = ref<TagCloudItem[]>([]);
-
-// 加载热门标签
-const loadPopularTags = async () => {
-  try {
-    const tags = await getPopularTags();
-    popularTags.value = tags;
-  } catch (error) {
-    console.error('Failed to load popular tags:', error);
-  }
-};
 
 // 快捷操作
 const quickActions: Array<{
@@ -285,18 +178,11 @@ const quickActions: Array<{
   color: 'primary' | 'warm' | 'secondary' | 'accent';
 }> = [
   {
-    label: '新建笔记',
-    description: '创建新的 Markdown 笔记',
-    href: '/app/notes',
-    icon: FilePlus,
-    color: 'primary',
-  },
-  {
     label: '工具集',
     description: '实用开发工具',
     href: '/app/tools',
     icon: Wrench,
-    color: 'secondary',
+    color: 'primary',
   },
 ];
 
@@ -357,54 +243,7 @@ const getIconForActivity = (type: string) => {
   return iconMap[type] || BookOpen;
 };
 
-// 快速记录
-const quickNote = ref('');
-const quickTags = ref('');
-
-// 清空快速记录
-const clearQuickNote = () => {
-  quickNote.value = '';
-  quickTags.value = '';
-  toast({
-    title: '已清空',
-    description: '快速记录内容已清空',
-  });
-};
-
-// 标签点击处理
-const handleTagClick = (tag: TagCloudItem) => {
-  if (tag.type === 'note' || tag.type === 'both') {
-    router.push(`/app/notes?tag=${encodeURIComponent(tag.name)}`);
-  } else if (tag.type === 'idea') {
-    router.push(`/app/notes?tag=${encodeURIComponent(tag.name)}`);
-  }
-};
-
-
-const handleQuickSave = async () => {
-  try {
-    const tags = quickTags.value ? quickTags.value.split(',').map((t: string) => t.trim()) : [];
-    await createNote({
-      title: '快速记录',
-      content: quickNote.value,
-      tags,
-    });
-    toast({
-      title: '快速记录已保存',
-      description: '内容已保存到笔记',
-    });
-    quickNote.value = '';
-    quickTags.value = '';
-    // 重新加载统计数据
-    await loadStats();
-  } catch (error) {
-    toast({
-      title: '保存失败',
-      description: '请稍后重试',
-      variant: 'destructive',
-    });
-  }
-};
+// 标签点击处理（笔记功能已移除，暂时无功能）
 
 // 用户习惯学习功能
 const USER_HABITS_KEY = 'conan-user-habits';
@@ -414,7 +253,6 @@ const userHabits = ref({
   visitCount: 0,
   lastVisit: '',
   favoriteFeatures: {
-    notes: 0,
     tools: 0,
   },
   usagePatterns: {
@@ -472,7 +310,7 @@ const updateVisitStats = () => {
 };
 
 // 记录功能使用
-const recordFeatureUse = (feature: 'notes' | 'tools') => {
+const recordFeatureUse = (feature: 'tools') => {
   userHabits.value.favoriteFeatures[feature] += 1;
   userHabits.value.recentActions.unshift(`${feature}-${Date.now()}`);
   // 只保留最近10个动作
@@ -496,13 +334,10 @@ const personalizedRecommendation = computed(() => {
   const hour = new Date().getHours();
 
   if (!feature) {
-    return '尝试创建你的第一篇笔记，开始记录生活和工作吧！';
+    return '尝试使用工具集，提高工作效率！';
   }
 
   const recommendations: Record<string, string> = {
-    notes: hour < 12
-      ? '早上是整理笔记的好时机，试试清理一下旧笔记？'
-      : '今天有什么新的想法需要记录下来吗？',
     tools: '需要处理一些数据吗？试试JSON格式化工具。',
   };
 
@@ -545,13 +380,7 @@ const enhancedPersonalizedMessage = computed(() => {
 // 修改handleRecentClick以记录功能使用
 const enhancedHandleRecentClick = (item: typeof recentItems.value[0]) => {
   // 记录功能使用
-  if (item.type === 'note' || item.description.includes('知识库')) {
-    recordFeatureUse('notes');
-    router.push('/app/notes');
-  } else if (item.type === 'idea' || item.description.includes('灵感箱')) {
-    recordFeatureUse('notes');
-    router.push('/app/notes');
-  } else if (item.type === 'tool' || item.description.includes('工具集')) {
+  if (item.type === 'tool' || item.description.includes('工具集')) {
     recordFeatureUse('tools');
     router.push('/app/tools');
   } else if (item.type === 'dashboard') {
@@ -567,7 +396,6 @@ onMounted(() => {
 
   // 加载数据
   loadStats();
-  loadPopularTags();
   loadRecentActivities();
 });
 </script>
