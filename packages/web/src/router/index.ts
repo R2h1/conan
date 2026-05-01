@@ -46,12 +46,6 @@ const router = createRouter({
           component: () => import('../views/Tools.vue'),
           meta: { title: '工具集' },
         },
-        {
-          path: 'tags',
-          name: 'tags',
-          component: () => import('../views/Tags.vue'),
-          meta: { title: '标签云' },
-        },
       ],
     },
     // 重定向：访问旧路径自动转到 /app
@@ -98,7 +92,6 @@ router.beforeEach(async (to) => {
     const pagePaths = [
       '/app',
       '/app/tools',
-      '/app/tags',
     ];
     if (pagePaths.includes(to.path)) {
       recordPageVisit(to.path, String(pageTitle));

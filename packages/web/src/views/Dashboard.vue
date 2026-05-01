@@ -236,152 +236,30 @@ const refreshRecentActivities = async () => {
 const getIconForActivity = (type: string) => {
   const iconMap: Record<string, any> = {
     dashboard: LayoutDashboard,
-    note: BookOpen,
-    idea: Lightbulb,
     tool: Wrench,
   };
-  return iconMap[type] || BookOpen;
+  return iconMap[type] || LayoutDashboard;
 };
 
 // 标签点击处理（笔记功能已移除，暂时无功能）
 
-// 用户习惯学习功能
-const USER_HABITS_KEY = 'conan-user-habits';
-
-// 初始化用户习惯数据
-const userHabits = ref({
-  visitCount: 0,
-  lastVisit: '',
-  favoriteFeatures: {
-    tools: 0,
-  },
-  usagePatterns: {
-    morning: 0,
-    afternoon: 0,
-    evening: 0,
-    night: 0,
-  },
-  recentActions: [] as string[],
-});
-
-// 加载用户习惯
-const loadUserHabits = () => {
-  try {
-    const saved = localStorage.getItem(USER_HABITS_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      userHabits.value = { ...userHabits.value, ...parsed };
-    }
-  } catch (error) {
-    console.error('Failed to load user habits:', error);
-  }
-};
-
-// 保存用户习惯
-const saveUserHabits = () => {
-  try {
-    localStorage.setItem(USER_HABITS_KEY, JSON.stringify(userHabits.value));
-  } catch (error) {
-    console.error('Failed to save user habits:', error);
-  }
-};
-
-// 更新访问统计
-const updateVisitStats = () => {
-  const now = new Date();
-  const hour = now.getHours();
-
-  // 更新访问次数
-  userHabits.value.visitCount += 1;
-  userHabits.value.lastVisit = now.toISOString();
-
-  // 更新使用时段模式
-  if (hour < 6) {
-    userHabits.value.usagePatterns.night += 1;
-  } else if (hour < 12) {
-    userHabits.value.usagePatterns.morning += 1;
-  } else if (hour < 18) {
-    userHabits.value.usagePatterns.afternoon += 1;
-  } else {
-    userHabits.value.usagePatterns.evening += 1;
-  }
-
-  saveUserHabits();
-};
-
-// 记录功能使用
-const recordFeatureUse = (feature: 'tools') => {
-  userHabits.value.favoriteFeatures[feature] += 1;
-  userHabits.value.recentActions.unshift(`${feature}-${Date.now()}`);
-  // 只保留最近10个动作
-  userHabits.value.recentActions = userHabits.value.recentActions.slice(0, 10);
-  saveUserHabits();
-};
-
-// 获取最常用的功能
-const mostUsedFeature = computed(() => {
-  const features = userHabits.value.favoriteFeatures;
-  const entries = Object.entries(features) as [keyof typeof features, number][];
-  if (entries.length === 0) return null;
-
-  const sorted = entries.sort((a, b) => b[1] - a[1]);
-  return sorted[0][0];
-});
-
-// 获取个性化推荐
-const personalizedRecommendation = computed(() => {
-  const feature = mostUsedFeature.value;
-  const hour = new Date().getHours();
-
-  if (!feature) {
-    return '尝试使用工具集，提高工作效率！';
-  }
-
-  const recommendations: Record<string, string> = {
-    tools: '需要处理一些数据吗？试试JSON格式化工具。',
-  };
-
-  return recommendations[feature] || '继续探索Conan的更多功能吧！';
-});
-
-// 获取用户活跃时段
-const activeTimePeriod = computed(() => {
-  const patterns = userHabits.value.usagePatterns;
-  const entries = Object.entries(patterns) as [keyof typeof patterns, number][];
-  if (entries.length === 0) return '未知';
-
-  const sorted = entries.sort((a, b) => b[1] - a[1]);
-  const period = sorted[0][0];
-
-  const periodNames: Record<string, string> = {
-    morning: '早晨',
-    afternoon: '下午',
-    evening: '晚上',
-    night: '深夜',
-  };
-
-  return periodNames[period] || '未知';
-});
 
 // 增强的个性化消息
 const enhancedPersonalizedMessage = computed(() => {
   const baseMessage = personalizedMessage.value;
-  const recommendation = personalizedRecommendation.value;
-  const visitCount = userHabits.value.visitCount;
-
-  if (visitCount < 3) {
-    return `${baseMessage} ${recommendation}`;
-  }
-
-  const period = activeTimePeriod.value;
-  return `${baseMessage} 我发现你通常在${period}时段最活跃。${recommendation}`;
+  // 简单的推荐消息
+  const recommendations = [
+    '试试工具集，提高工作效率！',
+    '需要处理数据吗？试试JSON格式化工具。',
+    '探索Conan的更多功能吧！',
+  ];
+  const randomRecommendation = recommendations[Math.floor(Math.random() * recommendations.length)];
+  return `${baseMessage} ${randomRecommendation}`;
 });
 
-// 修改handleRecentClick以记录功能使用
+// 处理最近访问项点击
 const enhancedHandleRecentClick = (item: typeof recentItems.value[0]) => {
-  // 记录功能使用
   if (item.type === 'tool' || item.description.includes('工具集')) {
-    recordFeatureUse('tools');
     router.push('/app/tools');
   } else if (item.type === 'dashboard') {
     router.push('/app');
@@ -389,11 +267,6 @@ const enhancedHandleRecentClick = (item: typeof recentItems.value[0]) => {
 };
 
 onMounted(() => {
-  // 加载用户习惯
-  loadUserHabits();
-  // 更新访问统计
-  updateVisitStats();
-
   // 加载数据
   loadStats();
   loadRecentActivities();
