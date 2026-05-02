@@ -31,15 +31,9 @@ const router = createRouter({
     {
       path: '/app',
       component: DefaultLayout,
-      redirect: '/app/dashboard',
-      meta: { title: '仪表盘' },
+      redirect: '/app/tools',
+      meta: { title: '工具集' },
       children: [
-        {
-          path: 'dashboard',
-          name: 'dashboard',
-          component: () => import('../views/Dashboard.vue'),
-          meta: { title: '仪表盘' },
-        },
         {
           path: 'tools',
           name: 'tools',
@@ -90,11 +84,10 @@ router.beforeEach(async (to) => {
 
     // 只记录主要页面访问
     const pagePaths = [
-      '/app',
       '/app/tools',
     ];
     if (pagePaths.includes(to.path)) {
-      recordPageVisit(to.path, String(pageTitle));
+      recordPageVisit(to.path);
     }
   } catch (error) {
     console.warn('记录页面访问失败:', error);

@@ -42,15 +42,6 @@
           </button>
         </div>
         <div class="flex items-center gap-2">
-          <!-- 主题设置按钮 -->
-          <Button
-            variant="ghost"
-            size="icon"
-            @click="themeSettingsOpen = true"
-            title="主题设置"
-          >
-            <Palette class="h-5 w-5" />
-          </Button>
           <ThemeToggle />
           <!-- 用户信息和退出 -->
           <div
@@ -152,14 +143,6 @@
         </SheetContent>
       </Sheet>
 
-      <!-- 主题设置 Sheet -->
-      <Sheet v-model:open="themeSettingsOpen">
-        <SheetContent side="right" class="w-full sm:w-96 p-0">
-          <div class="h-full overflow-y-auto">
-            <ThemeSelector />
-          </div>
-        </SheetContent>
-      </Sheet>
 
       <!-- 主内容区 -->
       <main class="flex-1 p-4 md:p-6">
@@ -180,9 +163,7 @@ import {
   Menu,
   ChevronLeft,
   ChevronRight,
-  LayoutDashboard,
   Wrench,
-  Palette,
   Search,
 } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
@@ -194,13 +175,11 @@ import {
   TooltipContent,
 } from '@/components/ui/tooltip';
 import ThemeToggle from '@/components/theme-toggle.vue';
-import ThemeSelector from '@/components/theme/ThemeSelector.vue';
 import { useAuthStore } from '@/stores/auth';
 import { useSearchStore } from '@/stores/search';
 
 const sidebarCollapsed = ref(false);
 const mobileMenuOpen = ref(false);
-const themeSettingsOpen = ref(false);
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -227,7 +206,6 @@ const openSearch = () => {
 };
 
 const navItems = [
-  { name: '仪表盘', path: '/dashboard', icon: LayoutDashboard },
   { name: '工具集', path: '/tools', icon: Wrench },
 ];
 </script>

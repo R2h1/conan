@@ -24,7 +24,7 @@ model RecentActivity {
   id          Int      @id @default(autoincrement())
   userId      Int
   user        User     @relation(fields: [userId], references: [id])
-  type        String   // 'dashboard', 'note', 'idea', 'tool'
+  type        String   // 'tool'
   title       String
   description String
   icon        String?  // 图标名称（lucide图标）

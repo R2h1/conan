@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useSearchStore, type SearchResult } from '@/stores/search';
-import { FileText, Lightbulb, Wrench, ExternalLink, Star } from 'lucide-vue-next';
+import { Wrench, ExternalLink, Star } from 'lucide-vue-next';
 
 interface Props {
   result: SearchResult;
@@ -20,23 +20,12 @@ const isSelected = computed(() => searchStore.selectedIndex === globalIndex.valu
 
 // 图标映射
 const iconMap = {
-  note: FileText,
-  idea: Lightbulb,
   tool: Wrench,
 };
 
 // 类型标签
 const typeLabel = computed(() => {
-  switch (props.result.type) {
-    case 'note':
-      return '笔记';
-    case 'idea':
-      return '灵感';
-    case 'tool':
-      return '工具';
-    default:
-      return '未知';
-  }
+  return '工具';
 });
 
 // 处理点击
@@ -64,12 +53,7 @@ const emit = defineEmits<{
   >
     <!-- 图标 -->
     <div
-      :class="[
-        'p-2 rounded-md',
-        result.type === 'note' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' :
-        result.type === 'idea' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400' :
-        'bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400'
-      ]"
+      class="p-2 rounded-md bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400"
     >
       <component :is="iconMap[result.type]" class="h-4 w-4" />
     </div>
@@ -80,10 +64,6 @@ const emit = defineEmits<{
         <div class="font-medium truncate" v-html="result.title" />
         <div class="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
           {{ typeLabel }}
-        </div>
-        <!-- 收藏标记 -->
-        <div v-if="result.type === 'note' && result.isFavorite" class="text-yellow-500">
-          <Star class="h-3 w-3 fill-current" />
         </div>
       </div>
       <div class="text-sm text-muted-foreground truncate mt-1">

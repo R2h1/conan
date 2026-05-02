@@ -5,7 +5,7 @@ import { requireAuth } from '../plugins/auth-middleware.js';
 const prisma = new PrismaClient();
 
 // 活动类型定义
-type ActivityType = 'dashboard' | 'tool';
+type ActivityType = 'tool';
 
 interface ActivityCreateRequest {
   type: ActivityType;
@@ -29,7 +29,7 @@ export default async function activitiesRoutes(fastify: FastifyInstance) {
     }
 
     // 验证活动类型
-    const validTypes = ['dashboard', 'tool'];
+    const validTypes = ['tool'];
     if (!validTypes.includes(type)) {
       return reply.status(400).send({ error: `无效的活动类型，必须是: ${validTypes.join(', ')}` });
     }
@@ -162,7 +162,6 @@ export default async function activitiesRoutes(fastify: FastifyInstance) {
 // 根据活动类型获取默认图标
 function getDefaultIcon(type: ActivityType): string {
   const iconMap: Record<ActivityType, string> = {
-    dashboard: 'LayoutDashboard',
     tool: 'Wrench',
   };
   return iconMap[type] || 'Circle';

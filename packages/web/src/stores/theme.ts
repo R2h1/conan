@@ -1,106 +1,11 @@
 import { defineStore } from 'pinia';
-import { ref, computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 
-export interface ThemeColors {
-  primary: string;
-  primaryHover: string;
-  ring: string;
-}
-
-export interface Theme {
-  id: string;
-  name: string;
-  type: 'preset' | 'custom';
-  colors: ThemeColors;
-  description?: string;
-  icon?: string;
-}
-
-// 预设主题列表 - 温暖友好设计系统
-const PRESET_THEMES: Theme[] = [
-  {
-    id: 'orange',
-    name: '橙色主题',
-    type: 'preset',
-    description: '温暖友好风格',
-    icon: '🍊',
-    colors: {
-      primary: '24 95% 53.1%',
-      primaryHover: '24 95% 48.1%',
-      ring: '24 95% 53.1%',
-    },
-  },
-  {
-    id: 'blue',
-    name: '蓝色主题',
-    type: 'preset',
-    description: '专业信任风格',
-    icon: '🔵',
-    colors: {
-      primary: '201 96% 32%',
-      primaryHover: '201 96% 27%',
-      ring: '201 96% 32%',
-    },
-  },
-  {
-    id: 'green',
-    name: '绿色主题',
-    type: 'preset',
-    description: '成长清新风格',
-    icon: '🌿',
-    colors: {
-      primary: '142 76% 36%',
-      primaryHover: '142 76% 31%',
-      ring: '142 76% 36%',
-    },
-  },
-  {
-    id: 'purple',
-    name: '紫色主题',
-    type: 'preset',
-    description: '创意灵感风格',
-    icon: '🌀',
-    colors: {
-      primary: '282 83% 54%',
-      primaryHover: '282 83% 49%',
-      ring: '282 83% 54%',
-    },
-  },
-  {
-    id: 'pink',
-    name: '粉红主题',
-    type: 'preset',
-    description: '浪漫情感风格',
-    icon: '🌸',
-    colors: {
-      primary: '330 84% 60%',
-      primaryHover: '330 84% 55%',
-      ring: '330 84% 60%',
-    },
-  },
-  {
-    id: 'cyan',
-    name: '青色主题',
-    type: 'preset',
-    description: '科技效率风格',
-    icon: '💠',
-    colors: {
-      primary: '188 94% 42%',
-      primaryHover: '188 94% 37%',
-      ring: '188 94% 42%',
-    },
-  },
-];
-
-// 从 localStorage 读取保存的主题设置
+// 从 localStorage 读取保存的深色模式设置
 const STORAGE_KEY = 'conan-theme';
-const DEFAULT_THEME_ID = 'orange';
 
 export const useThemeStore = defineStore('theme', () => {
-  // 当前主题 ID
-  const currentThemeId = ref<string>(DEFAULT_THEME_ID);
-
-  // 深色模式状态（独立于主题）
+  // 深色模式状态
   const isDarkMode = ref<boolean>(false);
 
   // 加载初始化状态
@@ -108,10 +13,7 @@ export const useThemeStore = defineStore('theme', () => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
-        const { themeId, darkMode } = JSON.parse(saved);
-        if (themeId && PRESET_THEMES.some(t => t.id === themeId)) {
-          currentThemeId.value = themeId;
-        }
+        const { darkMode } = JSON.parse(saved);
         if (typeof darkMode === 'boolean') {
           isDarkMode.value = darkMode;
         }
@@ -124,29 +26,6 @@ export const useThemeStore = defineStore('theme', () => {
   // 初始化加载
   loadInitialState();
 
-  // 当前主题对象
-  const currentTheme = computed<Theme>(() => {
-    return PRESET_THEMES.find(t => t.id === currentThemeId.value) || PRESET_THEMES[0];
-  });
-
-  // 所有可用主题
-  const availableThemes = computed<Theme[]>(() => PRESET_THEMES);
-
-  /**
-   * 切换主题
-   */
-  const setTheme = (themeId: string) => {
-    const theme = PRESET_THEMES.find(t => t.id === themeId);
-    if (!theme) {
-      console.warn(`Theme ${themeId} not found`);
-      return;
-    }
-
-    currentThemeId.value = themeId;
-    applyThemeToDOM(theme);
-    saveToStorage();
-  };
-
   /**
    * 切换深色模式
    */
@@ -155,43 +34,6 @@ export const useThemeStore = defineStore('theme', () => {
     isDarkMode.value = newValue;
     applyDarkModeToDOM(newValue);
     saveToStorage();
-  };
-
-  /**
-   * 重置为主题（只重置主题颜色，保持深色模式状态）
-   */
-  const resetToDefault = () => {
-    setTheme(DEFAULT_THEME_ID);
-  };
-
-  /**
-   * 将主题应用到 DOM
-   */
-  const applyThemeToDOM = (theme: Theme) => {
-    const root = document.documentElement;
-
-    // 清除之前可能设置的内联样式变量
-    // 这些变量现在完全由CSS控制
-    const cssVariables = [
-      '--primary',
-      '--primary-hover',
-      '--ring',
-      '--accent',
-      '--accent-foreground',
-      '--secondary',
-      '--secondary-foreground'
-    ];
-
-    cssVariables.forEach(varName => {
-      root.style.removeProperty(varName);
-    });
-
-    // 设置 data-theme 属性，让CSS选择器应用主题
-    if (theme.id === DEFAULT_THEME_ID) {
-      root.removeAttribute('data-theme');
-    } else {
-      root.setAttribute('data-theme', theme.id);
-    }
   };
 
   /**
@@ -212,7 +54,6 @@ export const useThemeStore = defineStore('theme', () => {
   const saveToStorage = () => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        themeId: currentThemeId.value,
         darkMode: isDarkMode.value,
       }));
     } catch (e) {
@@ -221,12 +62,9 @@ export const useThemeStore = defineStore('theme', () => {
   };
 
   /**
-   * 初始化应用主题到 DOM
+   * 初始化应用深色模式到 DOM
    */
   const initializeTheme = () => {
-    // 应用当前主题
-    applyThemeToDOM(currentTheme.value);
-
     // 应用深色模式
     applyDarkModeToDOM(isDarkMode.value);
 
@@ -248,14 +86,6 @@ export const useThemeStore = defineStore('theme', () => {
     };
   };
 
-  // 监听主题变化，自动应用到 DOM
-  watch(currentThemeId, (newThemeId) => {
-    const theme = PRESET_THEMES.find(t => t.id === newThemeId);
-    if (theme) {
-      applyThemeToDOM(theme);
-    }
-  });
-
   // 监听深色模式变化，自动应用到 DOM
   watch(isDarkMode, (newValue) => {
     applyDarkModeToDOM(newValue);
@@ -263,19 +93,11 @@ export const useThemeStore = defineStore('theme', () => {
 
   return {
     // 状态
-    currentThemeId,
-    currentTheme,
     isDarkMode,
-    availableThemes,
 
     // 方法
-    setTheme,
     toggleDarkMode,
-    resetToDefault,
     initializeTheme,
     loadInitialState,
   };
 });
-
-// 导出预设主题列表供其他组件使用
-export { PRESET_THEMES, DEFAULT_THEME_ID };

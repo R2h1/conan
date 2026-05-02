@@ -6,7 +6,7 @@ const api = axios.create({
 });
 
 // 活动类型
-export type ActivityType = 'dashboard' | 'tool';
+export type ActivityType = 'tool';
 
 // 活动记录请求接口
 export interface ActivityCreateRequest {
@@ -42,14 +42,8 @@ export const getRecentActivities = async (): Promise<ActivityResponse[]> => {
 };
 
 // 记录页面访问活动
-export const recordPageVisit = (page: string, title?: string) => {
+export const recordPageVisit = (page: string) => {
   const pageMap: Record<string, { type: ActivityType; title: string; description: string; icon: string }> = {
-    '/app': {
-      type: 'dashboard',
-      title: '仪表盘',
-      description: '访问了仪表盘页面',
-      icon: 'LayoutDashboard',
-    },
     '/app/tools': {
       type: 'tool',
       title: '工具集',
